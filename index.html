@@ -30,6 +30,93 @@
   .star { fill: white; opacity: 0; animation: twinkle var(--dur) var(--delay) infinite; }
   @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:var(--max-op);} }
 
+  /* ── WELCOME OVERLAY ── */
+  #welcome {
+    position: absolute; inset: 0; z-index: 50;
+    background: rgba(6,6,14,0.92);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.8s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  #welcome-card {
+    border: 1px solid var(--border);
+    padding: 52px 56px;
+    max-width: 520px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+  }
+  #welcome-card::before {
+    content: '';
+    position: absolute; inset: -1px;
+    background: linear-gradient(135deg, rgba(201,168,76,0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .welcome-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.28em;
+    color: var(--gold-dim); text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .welcome-title {
+    font-family: 'Cinzel', serif;
+    font-size: 22px; font-weight: 600;
+    color: var(--gold); letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .welcome-subtitle {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px; font-style: italic;
+    color: var(--gold-dim); letter-spacing: 0.06em;
+    margin-bottom: 32px;
+  }
+  .welcome-body {
+    font-size: 14px; line-height: 1.85;
+    color: var(--text-dim);
+    margin-bottom: 32px;
+    text-align: left;
+  }
+  .welcome-body p { margin-bottom: 12px; }
+  .welcome-body p:last-child { margin-bottom: 0; }
+  .welcome-body strong { color: var(--text); font-weight: 500; }
+  .welcome-divider {
+    width: 40px; height: 1px;
+    background: var(--border);
+    margin: 0 auto 28px;
+  }
+  .welcome-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    line-height: 1.7;
+  }
+  .welcome-note a { color: var(--gold-dim); text-decoration: none; transition: color 0.2s; }
+  .welcome-note a:hover { color: var(--gold); }
+  #welcome-start {
+    background: none;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    padding: 12px 32px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: block; margin: 0 auto;
+  }
+  #welcome-start:hover {
+    border-color: var(--gold-bright);
+    color: var(--gold-bright);
+    box-shadow: 0 0 20px rgba(201,168,76,0.12);
+  }
+  @media (max-width: 680px) {
+    #welcome-card { padding: 36px 28px; }
+    .welcome-title { font-size: 18px; }
+    .welcome-body { font-size: 13px; }
+  }
+
   /* ── HEADER (top left) ── */
   #header { position: absolute; top: 28px; left: 36px; z-index: 15; pointer-events: none; }
   #header h1 { font-family:'Cinzel',serif; font-size:11px; font-weight:600; letter-spacing:0.32em; color:var(--gold); text-transform:uppercase; margin-bottom:8px; }
@@ -217,6 +304,27 @@
 <body>
 <div id="canvas-container">
 
+  <!-- ── WELCOME OVERLAY ── -->
+  <div id="welcome">
+    <div id="welcome-card">
+      <div class="welcome-eyebrow">psychoid.fm / analecta</div>
+      <div class="welcome-title">Analecta</div>
+      <div class="welcome-subtitle">a spatial research library</div>
+      <div class="welcome-divider"></div>
+      <div class="welcome-body">
+        <p>A reading list is a container, not a map. It tells you what you have read. It cannot show you what your reading is becoming.</p>
+        <p>This is your blank Analecta. Click <strong>EDIT</strong> to add your first paper. Give it a <strong>thesis</strong> — not a summary, but a 2–3 sentence interpretation of why this source matters to your inquiry.</p>
+        <p>Your map saves automatically in this browser. Export a backup from the Data tab whenever you like.</p>
+      </div>
+      <div class="welcome-note">
+        Built by <a href="https://iamlueda.com" target="_blank">Lueda Alia</a> &nbsp;·&nbsp;
+        See the live example at <a href="https://psychoid.fm/analecta" target="_blank">psychoid.fm/analecta</a> &nbsp;·&nbsp;
+        <a href="https://github.com/iamlueda/analecta" target="_blank">github</a>
+      </div>
+      <button id="welcome-start">Begin</button>
+    </div>
+  </div>
+
   <!-- TOP LEFT: title and tagline -->
   <div id="header">
     <h1>Analecta</h1>
@@ -380,7 +488,7 @@ let convergenceMode = false;
 
 // ─── PERSISTENCE ──────────────────────────────────────────────
 function saveData() {
-  localStorage.setItem('analecta_data', JSON.stringify({
+  localStorage.setItem('analecta_template_data', JSON.stringify({
     entries: entries,
     links: links,
     clusters: CLUSTERS,
@@ -388,7 +496,7 @@ function saveData() {
 }
 
 function loadData() {
-  const saved = localStorage.getItem('analecta_data');
+  const saved = localStorage.getItem('analecta_template_data');
   if (!saved) return false;
   try {
     const data = JSON.parse(saved);
@@ -1200,7 +1308,7 @@ function renderDataTab(body) {
       btnClass: 'danger',
       action: () => {
         if (!confirm('Reset to template? All your entries will be lost.')) return;
-        localStorage.removeItem('analecta_data');
+        localStorage.removeItem('analecta_template_data');
         location.reload();
       },
     },
@@ -1278,7 +1386,20 @@ window.addEventListener("resize", () => {
 });
 
 // ─── INIT ─────────────────────────────────────────────────────
-loadData();
+const welcomeEl = document.getElementById('welcome');
+const hasData = loadData();
+
+// Skip welcome for returning users who already have their own entries
+if (hasData && entries.length > 3) {
+  welcomeEl.style.display = 'none';
+}
+
+document.getElementById('welcome-start').addEventListener('click', () => {
+  welcomeEl.style.transition = 'opacity 0.5s ease';
+  welcomeEl.style.opacity = '0';
+  setTimeout(() => { welcomeEl.style.display = 'none'; }, 500);
+});
+
 renderGraph();
 </script>
 </body>
