@@ -37,60 +37,16 @@
   #header-tagline { font-family:'EB Garamond',serif; font-size:12px; font-style:italic; color:var(--gold-dim); letter-spacing:0.06em; max-width:280px; line-height:1.6; }
 
   /* ── HOME LINK (top right) ── */
-  #home-link {
-    position: absolute;
-    top: 28px; right: 36px;
-    z-index: 10;
-    text-align: right;
-  }
-  #home-link a {
-    font-family: 'Cinzel', serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.28em;
-    color: var(--gold-dim);
-    text-decoration: none;
-    text-transform: lowercase;
-    transition: color 0.25s;
-    display: block;
-    margin-bottom: 4px;
-  }
+  #home-link { position: absolute; top: 28px; right: 36px; z-index: 10; text-align: right; }
+  #home-link a { font-family: 'Cinzel', serif; font-size: 11px; font-weight: 400; letter-spacing: 0.28em; color: var(--gold-dim); text-decoration: none; text-transform: lowercase; transition: color 0.25s; display: block; margin-bottom: 4px; }
   #home-link a:hover { color: var(--gold); }
 
   /* ── SEARCH (bottom right) ── */
-  #search-container {
-    position: absolute;
-    bottom: 100px;
-    right: 36px;
-    z-index: 10;
-    width: 160px;
-    text-align: right;
-  }
-  #search-input {
-    width: 100%;
-    background: rgba(6,6,14,0.85);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    padding: 6px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-    border-radius: 0;
-  }
+  #search-container { position: absolute; bottom: 100px; right: 36px; z-index: 10; width: 160px; text-align: right; }
+  #search-input { width: 100%; background: rgba(6,6,14,0.85); border: 1px solid var(--border); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 16px; letter-spacing: 0.1em; padding: 6px 14px; outline: none; transition: border-color 0.2s; -webkit-appearance: none; border-radius: 0; }
   #search-input::placeholder { color: var(--text-dim); }
   #search-input:focus { border-color: var(--gold-dim); }
-  #search-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 8px;
-    color: var(--gold-dim);
-    text-align: center;
-    margin-top: 5px;
-    letter-spacing: 0.08em;
-    height: 10px;
-  }
+  #search-count { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--gold-dim); text-align: center; margin-top: 5px; letter-spacing: 0.08em; height: 10px; }
 
   /* ── LEGEND ── */
   #legend { position: absolute; bottom: 28px; left: 36px; z-index: 15; }
@@ -152,6 +108,73 @@
   .legend-item.empty { opacity: 0.3; cursor: default; }
   .legend-item.empty:hover { opacity: 0.3; }
 
+  /* ── EDITOR PANEL ── */
+  #editor-panel { position:absolute; top:0; left:0; width:430px; height:100%; background:var(--panel-bg); border-right:1px solid var(--border); z-index:20; transform:translateX(-100%); transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); display:flex; flex-direction:column; }
+  #editor-panel.open { transform:translateX(0); }
+  #editor-header { padding:28px 28px 0; flex-shrink:0; }
+  #editor-header h2 { font-family:'Cinzel',serif; font-size:11px; font-weight:600; letter-spacing:0.32em; color:var(--gold); text-transform:uppercase; }
+  #editor-close { position:absolute; top:20px; right:20px; background:none; border:1px solid var(--border); color:var(--gold-dim); font-family:'JetBrains Mono',monospace; font-size:9px; padding:4px 10px; cursor:pointer; letter-spacing:0.1em; transition:all 0.2s; }
+  #editor-close:hover { border-color:var(--gold); color:var(--gold); }
+  #editor-tabs { display:flex; border-bottom:1px solid var(--border); margin-top:18px; }
+  .editor-tab { flex:1; background:none; border:none; border-bottom:2px solid transparent; color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.15em; padding:8px 4px; cursor:pointer; transition:all 0.2s; }
+  .editor-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+  #editor-body { flex:1; overflow-y:auto; padding:20px 28px 40px; }
+  #editor-body::-webkit-scrollbar { width:2px; }
+  #editor-body::-webkit-scrollbar-thumb { background:var(--gold-dim); }
+
+  /* Editor form elements */
+  .editor-section-title { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:var(--gold-dim); text-transform:uppercase; margin:22px 0 12px; }
+  .editor-section-title:first-child { margin-top:4px; }
+  .editor-field { margin-bottom:13px; }
+  .editor-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.12em; color:var(--text-dim); display:block; margin-bottom:5px; text-transform:uppercase; }
+  .editor-input, .editor-textarea, .editor-select {
+    width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--border);
+    color:var(--text); font-family:'EB Garamond',serif; font-size:13px;
+    padding:7px 10px; outline:none; transition:border-color 0.2s;
+    -webkit-appearance:none; border-radius:0;
+  }
+  .editor-input:focus, .editor-textarea:focus, .editor-select:focus { border-color:var(--gold-dim); }
+  .editor-textarea { resize:vertical; min-height:90px; line-height:1.65; }
+  .editor-select { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.05em; }
+  .editor-select option { background:var(--bg); }
+  .editor-checkbox-row { display:flex; align-items:flex-start; gap:9px; }
+  .editor-checkbox-row input[type=checkbox] { accent-color:var(--gold); width:14px; height:14px; cursor:pointer; flex-shrink:0; margin-top:1px; }
+  .editor-checkbox-row label { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:0.08em; cursor:pointer; line-height:1.5; }
+  .editor-btn { background:none; border:1px solid var(--border); color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:8px; padding:6px 14px; cursor:pointer; letter-spacing:0.1em; transition:all 0.2s; }
+  .editor-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .editor-btn.primary { border-color:var(--gold-dim); color:var(--gold); }
+  .editor-btn.primary:hover { border-color:var(--gold-bright); color:var(--gold-bright); }
+  .editor-btn.danger { border-color:rgba(224,85,85,0.35); color:#c04444; }
+  .editor-btn.danger:hover { border-color:#e05555; color:#e05555; }
+  .editor-btn-row { display:flex; gap:8px; margin-top:18px; flex-wrap:wrap; }
+  .editor-btn-full { width:100%; text-align:center; margin-bottom:10px; }
+
+  /* Entry list */
+  .entry-list-item { padding:10px 0; border-bottom:1px solid rgba(201,168,76,0.07); cursor:pointer; display:flex; align-items:flex-start; gap:10px; transition:padding-left 0.15s; }
+  .entry-list-item:hover { padding-left:5px; }
+  .entry-list-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+  .entry-list-num { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--gold-dim); flex-shrink:0; margin-top:2px; }
+  .entry-list-title { font-size:12px; color:var(--text-dim); font-style:italic; line-height:1.5; flex:1; }
+
+  /* Connections checklist */
+  .conn-check-list { max-height:150px; overflow-y:auto; border:1px solid var(--border); padding:8px 10px; }
+  .conn-check-list::-webkit-scrollbar { width:2px; }
+  .conn-check-list::-webkit-scrollbar-thumb { background:var(--gold-dim); }
+  .conn-check-item { display:flex; align-items:flex-start; gap:7px; padding:4px 0; }
+  .conn-check-item input[type=checkbox] { accent-color:var(--gold); margin-top:2px; flex-shrink:0; cursor:pointer; }
+  .conn-check-item label { font-size:11px; color:var(--text-dim); font-style:italic; cursor:pointer; line-height:1.4; }
+
+  /* Color swatches */
+  .color-swatch-row { display:flex; flex-wrap:wrap; gap:7px; margin-top:6px; }
+  .color-swatch { width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:border-color 0.15s, transform 0.15s; }
+  .color-swatch:hover { transform:scale(1.15); }
+  .color-swatch.selected { border-color:white; }
+
+  /* Data tab cards */
+  .data-card { border:1px solid var(--border); padding:16px; margin-bottom:14px; }
+  .data-card-title { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:var(--gold-dim); text-transform:uppercase; margin-bottom:7px; }
+  .data-card-desc { font-size:12px; color:var(--text-dim); font-style:italic; margin-bottom:12px; line-height:1.6; }
+
   /* ── MOBILE ── */
   @media (max-width: 680px) {
     #tooltip { display: none !important; }
@@ -172,18 +195,14 @@
     #controls { bottom:14px; right:14px; gap:5px; }
     .ctrl-btn { font-size:7px; padding:4px 8px; }
     #entry-count { bottom:48px; right:14px; font-size:7px; }
-    #detail-panel {
-      width:100%; height:58%;
-      top:auto; bottom:0; right:0;
-      border-left:none; border-top:1px solid var(--border);
-      transform:translateY(100%);
-      padding:28px 22px;
-    }
+    #detail-panel { width:100%; height:58%; top:auto; bottom:0; right:0; border-left:none; border-top:1px solid var(--border); transform:translateY(100%); padding:28px 22px; }
     #detail-panel.open { transform:translateY(0); }
     #panel-title { font-size:12px; }
     #panel-thesis { font-size:12px; line-height:1.7; }
     .cluster-label { display:none; }
     .node-label { font-size:6px; }
+    #editor-panel { width:100%; border-right:none; border-top:1px solid var(--border); top:auto; bottom:0; height:72%; transform:translateY(100%); }
+    #editor-panel.open { transform:translateY(0); }
   }
   @media (max-height: 500px) and (orientation: landscape) {
     #header h1 { font-size:9px; }
@@ -198,10 +217,10 @@
 <body>
 <div id="canvas-container">
 
-  <!-- TOP LEFT: title and tagline — update these to match your site -->
+  <!-- TOP LEFT: title and tagline -->
   <div id="header">
     <h1>Analecta</h1>
-    <div id="header-sub"></div><!-- filled dynamically with today's date -->
+    <div id="header-sub"></div>
     <div id="header-tagline">your research, mapped.</div>
   </div>
 
@@ -210,7 +229,7 @@
     <div id="search-count"></div>
   </div>
 
-  <!-- TOP RIGHT: link back to your main site — update href and text -->
+  <!-- TOP RIGHT: link back to your main site -->
   <div id="home-link">
     <a href="/" title="Return home">your site</a>
   </div>
@@ -242,10 +261,25 @@
     <div id="panel-connections"></div>
   </div>
 
+  <!-- EDITOR PANEL -->
+  <div id="editor-panel">
+    <div id="editor-header">
+      <h2>Edit Map</h2>
+      <button id="editor-close">ESC</button>
+      <div id="editor-tabs">
+        <button class="editor-tab active" data-tab="entries">ENTRIES</button>
+        <button class="editor-tab" data-tab="clusters">DOMAINS</button>
+        <button class="editor-tab" data-tab="data">DATA</button>
+      </div>
+    </div>
+    <div id="editor-body"></div>
+  </div>
+
   <div id="tooltip"><div id="tooltip-num"></div><div id="tooltip-title"></div><div id="tooltip-thesis"></div></div>
   <div id="entry-count"></div>
 
   <div id="controls">
+    <button class="ctrl-btn" id="btn-editor">EDIT</button>
     <button class="ctrl-btn" id="btn-reset">RESET</button>
     <button class="ctrl-btn" id="btn-convergence">CONVERGENCE</button>
   </div>
@@ -253,13 +287,6 @@
 
 <script>
 // ─── CLUSTERS ─────────────────────────────────────────────────
-// Define your domains here. Each key becomes a cluster on the map.
-//   name  — displayed in the legend and detail panel
-//   color — hex color for nodes, links, and the glow halo
-//   short — abbreviation (kept for potential future labeling use)
-//
-// To add a cluster: add a key here, then add its position in getLayout() below.
-// To remove a cluster: delete it here and from getLayout().
 const CLUSTERS = {
   ai_tech:    { name:"AI & Technology",    color:"#4a9eff", short:"AI & TECH" },
   physics:    { name:"Physics & Geometry", color:"#c9a84c", short:"PHYSICS" },
@@ -272,22 +299,7 @@ const CLUSTERS = {
 };
 
 // ─── ENTRIES ──────────────────────────────────────────────────
-// Each entry is one node on the map.
-//
-// id          — unique integer; referenced by the links array below
-// num         — display string shown under the node (e.g. "001")
-// cluster     — must exactly match a key in CLUSTERS above
-// title       — paper or source title
-// authors     — authors and/or institution
-// date        — freeform date string (e.g. "Mar 6")
-// thesis      — 2–3 sentence interpretive compression (see README for guidance)
-// convergence — true gives the node a glowing outer ring; use for highlight entries
-// url         — source link, or null to hide the link in the detail panel
-//
-// The thesis is the key layer. It is not a summary — it is your position on the work:
-// what it proves, what it disrupts, what it opens up. Write in present tense.
 const entries = [
-
   // ── AI & TECHNOLOGY ─────────────────────────────────────────
   { id:1,  num:"001", cluster:"ai_tech",    title:"Claude's Cycles", authors:"Donald Knuth, Stanford", date:"Mar 6", thesis:"Knuth forced to revise opinions about AI after Claude solves an open graph theory problem. Character, not just capability — the highest institutional recognition in CS.", convergence:true,  url:"https://cs.stanford.edu/~knuth/papers/claude-cycles.pdf" },
   { id:2,  num:"002", cluster:"ai_tech",    title:"Dario: Claude May Have Consciousness", authors:"Amodei / Viral Analysis", date:"Mar 6", thesis:"Interpretability found anxiety-adjacent activations. The training corpus was anxious, and the model faithfully encoded it.", convergence:true,  url:"https://www.anthropic.com/research/emotion-concepts-function" },
@@ -330,65 +342,100 @@ const entries = [
 ];
 
 // ─── LINKS ────────────────────────────────────────────────────
-// Links draw connection lines between entries and appear in the detail panel.
-// source and target are entry id values. Links are undirected.
-//
-// Strategy: link entries that share a core concept, method, or implication —
-// not just entries from the same domain. Cross-cluster links are where the
-// interesting patterns emerge.
 const links = [
-  // Within clusters
-  {source:1,  target:2},  // Claude's Cycles ↔ AI Consciousness
-  {source:1,  target:3},  // Claude's Cycles ↔ Reasoning Theater
-  {source:4,  target:6},  // Quantum Geometry ↔ Fractal Condensation
-  {source:5,  target:4},  // Inner Core ↔ Quantum Geometry (geometry as substrate)
-  {source:7,  target:9},  // Brain Upload ↔ Hippocampus Recovery
-  {source:8,  target:9},  // Locus of Control ↔ Hippocampus/Memory
-  {source:10, target:12}, // Why Conscious ↔ Contemplative AI
-  {source:15, target:16}, // RPG Self ↔ Polytopes (both Jungian)
-  {source:16, target:17}, // Polytopes ↔ Hidden Geometry
-  {source:19, target:20}, // Archetypal Artist ↔ Active Imagination
-  {source:18, target:19}, // AI Healing ↔ Archetypal Artist
-  {source:21, target:22}, // Collective Intelligence ↔ Bioelectric Networks
-  {source:22, target:23}, // Bioelectric ↔ Dissipative Adaptation
-
-  // Cross-cluster
-  {source:2,  target:7},  // AI Consciousness ↔ Brain Upload (mind/substrate)
-  {source:3,  target:11}, // Reasoning Theater ↔ Not General Intelligence
-  {source:6,  target:22}, // Fractal Geometry ↔ Bioelectric (geometry at biological scale)
-  {source:10, target:7},  // Why Conscious ↔ Brain Upload
-  {source:11, target:3},  // Not General Intelligence ↔ Reasoning Theater
-  {source:12, target:10}, // Contemplative AI ↔ Why Conscious
-  {source:13, target:5},  // Everest Geology ↔ Inner Core (deep time, earth structure)
-  {source:14, target:2},  // Google AI Training ↔ AI Consciousness
-  {source:24, target:2},  // Transhumanism as History ↔ AI Consciousness
-  {source:24, target:16}, // Transhumanism as History ↔ Jungian Archetypes (rebirth/myth)
-  {source:16, target:21}, // Jungian Polytopes ↔ Collective Intelligence (distributed pattern)
-  {source:17, target:4},  // Hidden Geometry ↔ Quantum Geometry
-  {source:21, target:4},  // Collective Intelligence ↔ Quantum Geometry (mind as geometry)
+  {source:1,  target:2},
+  {source:1,  target:3},
+  {source:4,  target:6},
+  {source:5,  target:4},
+  {source:7,  target:9},
+  {source:8,  target:9},
+  {source:10, target:12},
+  {source:15, target:16},
+  {source:16, target:17},
+  {source:19, target:20},
+  {source:18, target:19},
+  {source:21, target:22},
+  {source:22, target:23},
+  {source:2,  target:7},
+  {source:3,  target:11},
+  {source:6,  target:22},
+  {source:10, target:7},
+  {source:11, target:3},
+  {source:12, target:10},
+  {source:13, target:5},
+  {source:14, target:2},
+  {source:24, target:2},
+  {source:24, target:16},
+  {source:16, target:21},
+  {source:17, target:4},
+  {source:21, target:4},
 ];
+
+// ─── MODULE STATE ─────────────────────────────────────────────
+let simulation = null;
+let nodeGroups, linkElements, nodeData, linkData;
+let layout, clusterPositions, W, H;
+let activeNode = null;
+let convergenceMode = false;
+
+// ─── PERSISTENCE ──────────────────────────────────────────────
+function saveData() {
+  localStorage.setItem('analecta_data', JSON.stringify({
+    entries: entries,
+    links: links,
+    clusters: CLUSTERS,
+  }));
+}
+
+function loadData() {
+  const saved = localStorage.getItem('analecta_data');
+  if (!saved) return false;
+  try {
+    const data = JSON.parse(saved);
+    entries.length = 0;
+    entries.push(...data.entries);
+    links.length = 0;
+    links.push(...data.links);
+    Object.keys(CLUSTERS).forEach(k => delete CLUSTERS[k]);
+    Object.assign(CLUSTERS, data.clusters);
+    return true;
+  } catch(e) { return false; }
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify({ entries, links, clusters: CLUSTERS }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'analecta-map.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(data) {
+  if (!data.entries || !data.links || !data.clusters) throw new Error('Invalid format');
+  entries.length = 0; entries.push(...data.entries);
+  links.length = 0; links.push(...data.links);
+  Object.keys(CLUSTERS).forEach(k => delete CLUSTERS[k]);
+  Object.assign(CLUSTERS, data.clusters);
+  saveData();
+  renderGraph();
+}
 
 // ─── SETUP ────────────────────────────────────────────────────
 const svg = d3.select("#main-svg");
-document.getElementById("entry-count").textContent = `${entries.length} entries · ${Object.keys(CLUSTERS).length} domains`;
-// Header date — updates automatically to today
+
 (function() {
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  document.getElementById('header-sub').innerHTML = dateStr + ' &nbsp;·&nbsp; living archive';
+  document.getElementById('header-sub').innerHTML =
+    now.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + ' &nbsp;·&nbsp; living archive';
 })();
 
-// ── Layout helpers ── responsive cluster positions
 function getLayout() {
   const W = window.innerWidth, H = window.innerHeight;
   const isSmall = Math.min(W,H) < 680;
   const isLandscape = W > H;
-
   let pos;
   if (!isSmall) {
-    // Desktop / tablet
-    // To add a cluster: add its key here with x/y as fractions of W and H.
-    // x:0.5, y:0.5 is center. x:0.2, y:0.2 is top-left.
     pos = {
       ai_tech:    { x:W*0.50, y:H*0.44 },
       physics:    { x:W*0.20, y:H*0.24 },
@@ -422,304 +469,817 @@ function getLayout() {
       biology:    { x:W*0.50, y:H*0.14 },
     };
   }
+  // Add any clusters not in the default layout, spread around center
+  const angle_step = (2 * Math.PI) / Math.max(1, Object.keys(CLUSTERS).length);
+  let i = 0;
+  Object.keys(CLUSTERS).forEach(key => {
+    if (!pos[key]) {
+      pos[key] = { x: W*0.5 + Math.cos(angle_step*i)*W*0.28, y: H*0.5 + Math.sin(angle_step*i)*H*0.28 };
+      i++;
+    }
+  });
   return { W, H, isSmall, isLandscape, pos };
 }
 
-// Starfield
-const starsLayer = d3.select("#stars-layer");
-const W0 = window.innerWidth, H0 = window.innerHeight;
-for (let i = 0; i < (Math.min(W0,H0)<680 ? 100 : 200); i++) {
-  starsLayer.append("circle").attr("class","star")
-    .attr("cx",Math.random()*W0).attr("cy",Math.random()*H0)
-    .attr("r",Math.random()*1.4+0.2)
-    .style("--dur",(Math.random()*4+2)+"s")
-    .style("--delay",(Math.random()*6)+"s")
-    .style("--max-op",(Math.random()*0.45+0.08).toFixed(2));
-}
+// Starfield — runs once only
+(function() {
+  const W0 = window.innerWidth, H0 = window.innerHeight;
+  const starsLayer = d3.select("#stars-layer");
+  for (let i = 0; i < (Math.min(W0,H0)<680 ? 100 : 200); i++) {
+    starsLayer.append("circle").attr("class","star")
+      .attr("cx",Math.random()*W0).attr("cy",Math.random()*H0)
+      .attr("r",Math.random()*1.4+0.2)
+      .style("--dur",(Math.random()*4+2)+"s")
+      .style("--delay",(Math.random()*6)+"s")
+      .style("--max-op",(Math.random()*0.45+0.08).toFixed(2));
+  }
+})();
 
-let layout = getLayout();
-let clusterPositions = layout.pos;
-let W = layout.W, H = layout.H;
+// ─── RENDER GRAPH ─────────────────────────────────────────────
+function renderGraph() {
+  if (simulation) simulation.stop();
 
-const nodeData = entries.map(e=>({...e,
-  x:clusterPositions[e.cluster].x+(Math.random()-0.5)*100,
-  y:clusterPositions[e.cluster].y+(Math.random()-0.5)*100,
-}));
-const nodeById={};
-nodeData.forEach(n=>{nodeById[n.id]=n;});
-const linkData=links.filter(l=>nodeById[l.source]&&nodeById[l.target])
-  .map(l=>({source:nodeById[l.source],target:nodeById[l.target],id:`${l.source}-${l.target}`}));
+  // Reset state
+  activeNode = null;
+  convergenceMode = false;
+  document.getElementById("btn-convergence").classList.remove("active");
+  closePanel();
 
-const clusterLabelSel = {};
+  // Clear layers
+  d3.select("#cluster-halos").selectAll("*").remove();
+  d3.select("#links-layer").selectAll("*").remove();
+  d3.select("#nodes-layer").selectAll("*").remove();
+  d3.select("#labels-layer").selectAll("*").remove();
 
-// ── Force simulation ──
-// clusterStr: gravity toward cluster center. Higher = tighter groups.
-//             For small libraries (<30 entries) try 0.45. For large (100+) use 0.24–0.30.
-// chargeStr:  repulsion between nodes. More negative = more spread.
-//             For small libraries try -80. For large use -140 to -180.
-// collideR:   collision radius. Increase if nodes visually overlap.
-// linkDist:   preferred length of connection lines.
-function simForces(l) {
-  const clusterStr  = l.isSmall ? 0.75 : 0.30;
-  const chargeStr   = l.isSmall ? -65  : -160;
-  const collideR    = l.isSmall ? 12   : 22;
-  const linkDist    = l.isSmall ? 40   : 75;
-  return { clusterStr, chargeStr, collideR, linkDist };
-}
+  // Update count
+  document.getElementById("entry-count").textContent =
+    `${entries.length} entries · ${Object.keys(CLUSTERS).length} domains`;
 
-const simulation=d3.forceSimulation(nodeData)
-  .force("link",d3.forceLink(linkData).id(d=>d.id).distance(simForces(layout).linkDist).strength(0.08))
-  .force("charge",d3.forceManyBody().strength(simForces(layout).chargeStr))
-  .force("collide",d3.forceCollide(simForces(layout).collideR))
-  .force("cluster_x",d3.forceX(d=>clusterPositions[d.cluster].x).strength(simForces(layout).clusterStr))
-  .force("cluster_y",d3.forceY(d=>clusterPositions[d.cluster].y).strength(simForces(layout).clusterStr))
-  .force("center",d3.forceCenter(layout.W*0.48,layout.H*0.48).strength(0.005));
+  layout = getLayout();
+  clusterPositions = layout.pos;
+  W = layout.W; H = layout.H;
 
-const linkElements=d3.select("#links-layer").selectAll("line").data(linkData).enter().append("line")
-  .attr("class","link")
-  .attr("stroke",d=>{const sc=CLUSTERS[d.source.cluster].color,tc=CLUSTERS[d.target.cluster].color;return sc===tc?sc:"#c9a84c";});
+  const f = simForces(layout);
 
-const nodeGroups=d3.select("#nodes-layer").selectAll(".node-group").data(nodeData).enter().append("g")
-  .attr("class","node-group")
-  .call(d3.drag()
-    .on("start",(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
-    .on("drag",(e,d)=>{d.fx=e.x;d.fy=e.y;})
-    .on("end",(e,d)=>{if(!e.active)simulation.alphaTarget(0);d.fx=null;d.fy=null;}));
+  nodeData = entries
+    .filter(e => CLUSTERS[e.cluster])
+    .map(e => ({
+      ...e,
+      x: (clusterPositions[e.cluster]?.x || W/2) + (Math.random()-0.5)*100,
+      y: (clusterPositions[e.cluster]?.y || H/2) + (Math.random()-0.5)*100,
+    }));
 
-nodeGroups.filter(d=>d.convergence).append("circle").attr("r",layout.isSmall?10:14).attr("fill","none")
-  .attr("stroke",d=>CLUSTERS[d.cluster].color).attr("stroke-width",0.5).attr("opacity",0.4).attr("filter","url(#glow)");
-nodeGroups.append("circle").attr("class","node-circle")
-  .attr("r",d=>d.convergence?(layout.isSmall?6:9):(layout.isSmall?5:7))
-  .attr("fill",d=>CLUSTERS[d.cluster].color).attr("fill-opacity",d=>d.convergence?0.9:0.62)
-  .attr("stroke",d=>CLUSTERS[d.cluster].color).attr("stroke-width",1).attr("stroke-opacity",0.55);
-nodeGroups.append("text").attr("class","node-label").attr("dy",18).attr("text-anchor","middle").text(d=>d.num);
+  const nodeById = {};
+  nodeData.forEach(n => { nodeById[n.id] = n; });
 
-const MARGIN = layout.isSmall ? 30 : 40;
-const MARGIN_BOTTOM = layout.isSmall ? 120 : 50;
-simulation.on("tick",()=>{
-  nodeData.forEach(d=>{
-    d.x = Math.max(MARGIN, Math.min(W - MARGIN, d.x));
-    d.y = Math.max(MARGIN, Math.min(H - MARGIN_BOTTOM, d.y));
+  linkData = links
+    .filter(l => nodeById[l.source] && nodeById[l.target])
+    .map(l => ({ source: nodeById[l.source], target: nodeById[l.target], id: `${l.source}-${l.target}` }));
+
+  linkElements = d3.select("#links-layer").selectAll("line").data(linkData).enter().append("line")
+    .attr("class","link")
+    .attr("stroke", d => {
+      const sc = CLUSTERS[d.source.cluster]?.color, tc = CLUSTERS[d.target.cluster]?.color;
+      return sc === tc ? sc : "#c9a84c";
+    });
+
+  nodeGroups = d3.select("#nodes-layer").selectAll(".node-group").data(nodeData).enter().append("g")
+    .attr("class","node-group")
+    .call(d3.drag()
+      .on("start",(e,d)=>{ if(!e.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on("drag",(e,d)=>{ d.fx=e.x; d.fy=e.y; })
+      .on("end",(e,d)=>{ if(!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; }));
+
+  nodeGroups.filter(d=>d.convergence).append("circle")
+    .attr("r", layout.isSmall?10:14).attr("fill","none")
+    .attr("stroke", d=>CLUSTERS[d.cluster].color).attr("stroke-width",0.5)
+    .attr("opacity",0.4).attr("filter","url(#glow)");
+
+  nodeGroups.append("circle").attr("class","node-circle")
+    .attr("r", d=>d.convergence?(layout.isSmall?6:9):(layout.isSmall?5:7))
+    .attr("fill", d=>CLUSTERS[d.cluster].color)
+    .attr("fill-opacity", d=>d.convergence?0.9:0.62)
+    .attr("stroke", d=>CLUSTERS[d.cluster].color)
+    .attr("stroke-width",1).attr("stroke-opacity",0.55);
+
+  nodeGroups.append("text").attr("class","node-label")
+    .attr("dy",18).attr("text-anchor","middle").text(d=>d.num);
+
+  const MARGIN = layout.isSmall ? 30 : 40;
+  const MARGIN_BOTTOM = layout.isSmall ? 120 : 50;
+
+  simulation = d3.forceSimulation(nodeData)
+    .force("link", d3.forceLink(linkData).id(d=>d.id).distance(f.linkDist).strength(0.08))
+    .force("charge", d3.forceManyBody().strength(f.chargeStr))
+    .force("collide", d3.forceCollide(f.collideR))
+    .force("cluster_x", d3.forceX(d=>clusterPositions[d.cluster]?.x||W/2).strength(f.clusterStr))
+    .force("cluster_y", d3.forceY(d=>clusterPositions[d.cluster]?.y||H/2).strength(f.clusterStr))
+    .force("center", d3.forceCenter(W*0.48, H*0.48).strength(0.005));
+
+  simulation.on("tick", () => {
+    nodeData.forEach(d => {
+      d.x = Math.max(MARGIN, Math.min(W - MARGIN, d.x));
+      d.y = Math.max(MARGIN, Math.min(H - MARGIN_BOTTOM, d.y));
+    });
+    linkElements.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y)
+      .attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+    nodeGroups.attr("transform",d=>`translate(${d.x},${d.y})`);
   });
-  linkElements.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y).attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
-  nodeGroups.attr("transform",d=>`translate(${d.x},${d.y})`);
-});
 
-// ─── TOOLTIP ─────────────────────────────────────────────────
-const tooltip=document.getElementById("tooltip");
-nodeGroups
-  .on("mouseover",function(event,d){
-    tooltip.querySelector("#tooltip-num").textContent=`ENTRY ${d.num} · ${d.date}`;
-    tooltip.querySelector("#tooltip-title").textContent=d.title;
-    tooltip.querySelector("#tooltip-thesis").textContent=d.thesis.substring(0,130)+"…";
-    tooltip.classList.add("visible");
-    linkElements.each(function(l){const el=d3.select(this);
-      if(l.source.id===d.id||l.target.id===d.id)el.classed("highlighted",true).classed("dimmed",false);
-      else el.classed("dimmed",true).classed("highlighted",false);});
-  })
-  .on("mousemove",function(event){
-    tooltip.style.left=Math.min(event.clientX+16,W-310)+"px";
-    tooltip.style.top=Math.min(event.clientY-10,H-130)+"px";
-  })
-  .on("mouseleave",function(){tooltip.classList.remove("visible");linkElements.classed("highlighted",false).classed("dimmed",false);});
+  // Tooltip
+  const tooltip = document.getElementById("tooltip");
+  nodeGroups
+    .on("mouseover", function(event,d) {
+      tooltip.querySelector("#tooltip-num").textContent = `ENTRY ${d.num} · ${d.date}`;
+      tooltip.querySelector("#tooltip-title").textContent = d.title;
+      tooltip.querySelector("#tooltip-thesis").textContent = d.thesis.substring(0,130)+"…";
+      tooltip.classList.add("visible");
+      linkElements.each(function(l) {
+        const el = d3.select(this);
+        if (l.source.id===d.id||l.target.id===d.id) el.classed("highlighted",true).classed("dimmed",false);
+        else el.classed("dimmed",true).classed("highlighted",false);
+      });
+    })
+    .on("mousemove", function(event) {
+      tooltip.style.left = Math.min(event.clientX+16, W-310)+"px";
+      tooltip.style.top  = Math.min(event.clientY-10, H-130)+"px";
+    })
+    .on("mouseleave", function() {
+      tooltip.classList.remove("visible");
+      linkElements.classed("highlighted",false).classed("dimmed",false);
+    });
 
-// ─── DETAIL PANEL ────────────────────────────────────────────
-let activeNode=null;
-nodeGroups.on("click",function(event,d){
-  event.stopPropagation();
-  if(activeNode===d.id){closePanel();return;}
-  activeNode=d.id;nodeGroups.classed("active",nd=>nd.id===d.id);openPanel(d);
-});
+  // Node click → detail panel
+  nodeGroups.on("click", function(event,d) {
+    event.stopPropagation();
+    if (activeNode===d.id) { closePanel(); return; }
+    activeNode = d.id;
+    nodeGroups.classed("active", nd=>nd.id===d.id);
+    openPanel(d);
+  });
 
-function openPanel(d){
-  const cluster=CLUSTERS[d.cluster];
-  document.getElementById("panel-entry-num").textContent=`ENTRY ${d.num} · ${d.date}`;
-  document.getElementById("panel-title").textContent=d.title;
-  document.getElementById("panel-meta").textContent=d.authors;
-  const srcLink=document.getElementById("panel-source-link");
-  if(d.url){srcLink.href=d.url;srcLink.classList.remove("hidden");}
-  else{srcLink.classList.add("hidden");}
-  const badge=document.getElementById("panel-cluster");
-  badge.textContent=cluster.name;badge.style.background=cluster.color+"22";
-  badge.style.color=cluster.color;badge.style.border=`1px solid ${cluster.color}44`;
-  document.getElementById("panel-thesis").textContent=d.thesis;
-  document.getElementById("panel-thesis-label").style.display='block';
-  document.getElementById("panel-connections-label").style.display='block';
-  const connContainer=document.getElementById("panel-connections");connContainer.innerHTML="";
-  const connected=linkData.filter(l=>l.source.id===d.id||l.target.id===d.id).map(l=>l.source.id===d.id?l.target:l.source);
-  if(connected.length===0){
-    connContainer.innerHTML='<div style="color:var(--text-dim);font-size:12px;font-style:italic;">No direct links mapped.</div>';
+  // Legend
+  const legend = document.getElementById("legend");
+  legend.innerHTML = '<div id="legend-title">Domains</div>';
+  const searchInput = document.getElementById("search-input");
+  const searchCountEl = document.getElementById("search-count");
+
+  Object.entries(CLUSTERS).forEach(([key,cluster]) => {
+    const count = entries.filter(e=>e.cluster===key).length;
+    const item = document.createElement("div");
+    item.className = "legend-item" + (count===0?" empty":"");
+    item.innerHTML = `<div class="legend-dot" style="background:${cluster.color};box-shadow:0 0 5px ${cluster.color}88;"></div><div class="legend-label">${cluster.name}</div><div class="legend-count">${count>0?count:"—"}</div>`;
+    item.onclick = () => {
+      if (count===0) return;
+      searchInput.value = ""; searchCountEl.textContent = "";
+      nodeGroups.each(function(d) { d3.select(this).style("opacity", d.cluster===key?1:0.08).classed("search-match",false); });
+      linkElements.each(function(l) { d3.select(this).style("opacity",(l.source.cluster===key||l.target.cluster===key)?0.5:0.03); });
+    };
+    legend.appendChild(item);
+  });
+
+  // Cluster halos
+  setTimeout(() => {
+    const haloLayer = d3.select("#cluster-halos");
+    Object.entries(CLUSTERS).forEach(([key,cluster]) => {
+      const count = entries.filter(e=>e.cluster===key).length;
+      if (count===0) return;
+      const pos = clusterPositions[key];
+      haloLayer.append("circle").attr("cx",pos.x).attr("cy",pos.y)
+        .attr("r",85).attr("fill",cluster.color)
+        .attr("opacity",0.04).attr("filter","url(#cluster-glow)");
+    });
+  }, 100);
+}
+
+function simForces(l) {
+  return {
+    clusterStr: l.isSmall ? 0.75 : 0.30,
+    chargeStr:  l.isSmall ? -65  : -160,
+    collideR:   l.isSmall ? 12   : 22,
+    linkDist:   l.isSmall ? 40   : 75,
+  };
+}
+
+// ─── DETAIL PANEL ─────────────────────────────────────────────
+function openPanel(d) {
+  const cluster = CLUSTERS[d.cluster];
+  document.getElementById("panel-entry-num").textContent = `ENTRY ${d.num} · ${d.date}`;
+  document.getElementById("panel-title").textContent = d.title;
+  document.getElementById("panel-meta").textContent = d.authors;
+  const srcLink = document.getElementById("panel-source-link");
+  if (d.url) { srcLink.href = d.url; srcLink.classList.remove("hidden"); }
+  else { srcLink.classList.add("hidden"); }
+  const badge = document.getElementById("panel-cluster");
+  badge.textContent = cluster.name;
+  badge.style.background = cluster.color+"22";
+  badge.style.color = cluster.color;
+  badge.style.border = `1px solid ${cluster.color}44`;
+  document.getElementById("panel-thesis").textContent = d.thesis;
+  document.getElementById("panel-thesis-label").style.display = 'block';
+  document.getElementById("panel-connections-label").style.display = 'block';
+  const connContainer = document.getElementById("panel-connections");
+  connContainer.innerHTML = "";
+  const connected = linkData
+    .filter(l=>l.source.id===d.id||l.target.id===d.id)
+    .map(l=>l.source.id===d.id?l.target:l.source);
+  if (connected.length===0) {
+    connContainer.innerHTML = '<div style="color:var(--text-dim);font-size:12px;font-style:italic;">No direct links mapped.</div>';
   } else {
-    connected.forEach(c=>{const el=document.createElement("div");el.className="conn-item";
-      el.innerHTML=`<span class="conn-num">${c.num}</span><span class="conn-title">${c.title}</span>`;
-      el.onclick=()=>{activeNode=c.id;nodeGroups.classed("active",nd=>nd.id===c.id);openPanel(c);};
-      connContainer.appendChild(el);});
+    connected.forEach(c => {
+      const el = document.createElement("div");
+      el.className = "conn-item";
+      el.innerHTML = `<span class="conn-num">${c.num}</span><span class="conn-title">${c.title}</span>`;
+      el.onclick = () => { activeNode=c.id; nodeGroups.classed("active",nd=>nd.id===c.id); openPanel(c); };
+      connContainer.appendChild(el);
+    });
   }
   document.getElementById("detail-panel").classList.add("open");
 }
-function closePanel(){
-  activeNode=null;
-  nodeGroups.classed("active",false);
+
+function closePanel() {
+  activeNode = null;
+  if (nodeGroups) nodeGroups.classed("active",false);
   document.getElementById("detail-panel").classList.remove("open");
-  document.getElementById("panel-thesis-label").style.display='none';
-  document.getElementById("panel-connections-label").style.display='none';
-  document.getElementById("panel-entry-num").textContent='';
-  document.getElementById("panel-title").textContent='';
-  document.getElementById("panel-meta").textContent='';
-  document.getElementById("panel-thesis").textContent='';
+  document.getElementById("panel-thesis-label").style.display = 'none';
+  document.getElementById("panel-connections-label").style.display = 'none';
+  document.getElementById("panel-entry-num").textContent = '';
+  document.getElementById("panel-title").textContent = '';
+  document.getElementById("panel-meta").textContent = '';
+  document.getElementById("panel-thesis").textContent = '';
 }
-const panelCloseBtn = document.getElementById("panel-close");
-panelCloseBtn.addEventListener("click", closePanel);
-panelCloseBtn.addEventListener("touchend", e=>{ e.preventDefault(); e.stopPropagation(); closePanel(); });
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
+
+document.getElementById("panel-close").addEventListener("click", closePanel);
+document.getElementById("panel-close").addEventListener("touchend", e=>{ e.preventDefault(); e.stopPropagation(); closePanel(); });
+document.addEventListener("keydown", e => {
+  if (e.key==="Escape") { closePanel(); closeEditor(); }
+});
+
 let pointerMoved = false;
 svg.on("pointerdown", ()=>{ pointerMoved = false; });
 svg.on("pointermove", ()=>{ pointerMoved = true; });
-svg.on("pointerup", function(event){
-  if(!pointerMoved && event.target === this.node ? this.node() : event.target.tagName === 'svg') closePanel();
-});
-svg.on("click", function(event){
-  if(event.target === document.getElementById("main-svg")) closePanel();
+svg.on("click", function(event) {
+  if (event.target === document.getElementById("main-svg")) closePanel();
 });
 
 // ─── SEARCH ──────────────────────────────────────────────────
-const searchInput=document.getElementById("search-input");
-const searchCountEl=document.getElementById("search-count");
+const searchInput  = document.getElementById("search-input");
+const searchCountEl = document.getElementById("search-count");
+const NO_MATCH = "no matches";
+
 document.getElementById("search-container").addEventListener("touchstart", e=>e.stopPropagation(), {passive:false});
-document.getElementById("search-container").addEventListener("touchend", e=>e.stopPropagation(), {passive:false});
-searchInput.addEventListener("input",function(){
-  const q=this.value.trim().toLowerCase();
-  if(!q){
+document.getElementById("search-container").addEventListener("touchend",   e=>e.stopPropagation(), {passive:false});
+
+searchInput.addEventListener("input", function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
     nodeGroups.style("opacity",1).classed("search-match",false);
     linkElements.style("opacity",null).classed("search-dim",false);
-    searchCountEl.textContent="";
+    searchCountEl.textContent = "";
     return;
   }
-  let matchCount=0;
-  const matchIds=new Set();
-  nodeData.forEach(d=>{
-    const hay=(d.title+d.authors+d.thesis+d.cluster+CLUSTERS[d.cluster].name).toLowerCase();
-    if(hay.includes(q)){matchIds.add(d.id);matchCount++;}
+  let matchCount = 0;
+  const matchIds = new Set();
+  nodeData.forEach(d => {
+    const hay = (d.title+d.authors+d.thesis+d.cluster+(CLUSTERS[d.cluster]?.name||'')).toLowerCase();
+    if (hay.includes(q)) { matchIds.add(d.id); matchCount++; }
   });
-  nodeGroups.each(function(d){
-    const match=matchIds.has(d.id);
-    d3.select(this).style("opacity",match?1:0.07).classed("search-match",match);
+  nodeGroups.each(function(d) {
+    const match = matchIds.has(d.id);
+    d3.select(this).style("opacity", match?1:0.07).classed("search-match",match);
   });
-  linkElements.each(function(l){
-    const both=matchIds.has(l.source.id)&&matchIds.has(l.target.id);
-    d3.select(this).style("opacity",both?0.55:0.03);
+  linkElements.each(function(l) {
+    const both = matchIds.has(l.source.id) && matchIds.has(l.target.id);
+    d3.select(this).style("opacity", both?0.55:0.03);
   });
-  searchCountEl.textContent=matchCount>0?`${matchCount} match${matchCount!==1?"es":""}`:NO_MATCH;
+  searchCountEl.textContent = matchCount>0 ? `${matchCount} match${matchCount!==1?"es":""}` : NO_MATCH;
 });
-const NO_MATCH="no matches";
-searchInput.addEventListener("keydown",e=>{if(e.key==="Escape"){searchInput.value="";searchInput.dispatchEvent(new Event("input"));}});
-
-// ─── LEGEND ──────────────────────────────────────────────────
-const legend=document.getElementById("legend");
-Object.entries(CLUSTERS).forEach(([key,cluster])=>{
-  const count=entries.filter(e=>e.cluster===key).length;
-  const item=document.createElement("div");
-  item.className="legend-item" + (count===0?" empty":"");
-  item.innerHTML=`<div class="legend-dot" style="background:${cluster.color};box-shadow:0 0 5px ${cluster.color}88;"></div><div class="legend-label">${cluster.name}</div><div class="legend-count">${count>0?count:"—"}</div>`;
-  item.onclick=()=>{
-    if(count===0)return;
-    searchInput.value="";searchCountEl.textContent="";
-    nodeGroups.each(function(d){d3.select(this).style("opacity",d.cluster===key?1:0.08).classed("search-match",false);});
-    linkElements.each(function(l){d3.select(this).style("opacity",(l.source.cluster===key||l.target.cluster===key)?0.5:0.03);});
-  };
-  legend.appendChild(item);
+searchInput.addEventListener("keydown", e => {
+  if (e.key==="Escape") { searchInput.value=""; searchInput.dispatchEvent(new Event("input")); }
 });
 
 // ─── CONTROLS ────────────────────────────────────────────────
-let convergenceMode=false;
-document.getElementById("btn-reset").addEventListener("click",()=>{
-  convergenceMode=false;
+document.getElementById("btn-reset").addEventListener("click", () => {
+  convergenceMode = false;
   document.getElementById("btn-convergence").classList.remove("active");
   nodeGroups.style("opacity",1).classed("search-match",false);
   linkElements.style("opacity",null);
-  searchInput.value="";searchCountEl.textContent="";
-  nodeData.forEach(d=>{
-    d.x = clusterPositions[d.cluster].x + (Math.random()-0.5)*60;
-    d.y = clusterPositions[d.cluster].y + (Math.random()-0.5)*60;
+  searchInput.value = ""; searchCountEl.textContent = "";
+  nodeData.forEach(d => {
+    d.x = (clusterPositions[d.cluster]?.x||W/2) + (Math.random()-0.5)*60;
+    d.y = (clusterPositions[d.cluster]?.y||H/2) + (Math.random()-0.5)*60;
     d.vx = 0; d.vy = 0;
   });
   simulation.alpha(0.6).restart();
   closePanel();
 });
 
-document.getElementById("btn-convergence").addEventListener("click",function(){
-  convergenceMode=!convergenceMode;
-  this.classList.toggle("active",convergenceMode);
-  if(convergenceMode){
-    const convIds=entries.filter(e=>e.convergence).map(e=>e.id);
-    nodeGroups.each(function(d){d3.select(this).style("opacity",convIds.includes(d.id)?1:0.07);});
-    linkElements.each(function(l){d3.select(this).style("opacity",convIds.includes(l.source.id)&&convIds.includes(l.target.id)?0.7:0.02);});
-    searchCountEl.textContent=`${convIds.length} convergence entries`;
-    nodeData.forEach(d=>{
-      if(convIds.includes(d.id)){
-        d.x = Math.max(MARGIN+20, Math.min(W-MARGIN-20, d.x));
-        d.y = Math.max(MARGIN+20, Math.min(H-MARGIN-20, d.y));
-      }
-    });
+document.getElementById("btn-convergence").addEventListener("click", function() {
+  convergenceMode = !convergenceMode;
+  this.classList.toggle("active", convergenceMode);
+  if (convergenceMode) {
+    const convIds = entries.filter(e=>e.convergence).map(e=>e.id);
+    nodeGroups.each(function(d) { d3.select(this).style("opacity", convIds.includes(d.id)?1:0.07); });
+    linkElements.each(function(l) { d3.select(this).style("opacity", convIds.includes(l.source.id)&&convIds.includes(l.target.id)?0.7:0.02); });
+    searchCountEl.textContent = `${convIds.length} convergence entries`;
     simulation
-      .force("conv_x", d3.forceX(d=>convIds.includes(d.id)?W*0.48:clusterPositions[d.cluster].x).strength(d=>convIds.includes(d.id)?0.12:0))
-      .force("conv_y", d3.forceY(d=>convIds.includes(d.id)?H*0.48:clusterPositions[d.cluster].y).strength(d=>convIds.includes(d.id)?0.12:0))
+      .force("conv_x", d3.forceX(d=>convIds.includes(d.id)?W*0.48:(clusterPositions[d.cluster]?.x||W/2)).strength(d=>convIds.includes(d.id)?0.12:0))
+      .force("conv_y", d3.forceY(d=>convIds.includes(d.id)?H*0.48:(clusterPositions[d.cluster]?.y||H/2)).strength(d=>convIds.includes(d.id)?0.12:0))
       .alpha(0.3).restart();
   } else {
-    nodeGroups.style("opacity",1);linkElements.style("opacity",null);searchCountEl.textContent="";
+    nodeGroups.style("opacity",1); linkElements.style("opacity",null); searchCountEl.textContent="";
     simulation.force("conv_x",null).force("conv_y",null).alpha(0.3).restart();
   }
 });
 
-// ─── CLUSTER HALOS ───────────────────────────────────────────
-// Soft glowing circles behind each cluster — purely decorative.
-// Radius is uniform here since the example library has equal cluster sizes.
-// For unequal libraries, try scaling radius by entry count:
-//   const r = Math.max(70, Math.min(160, 55 + count * 3));
-setTimeout(()=>{
-  const haloLayer=d3.select("#cluster-halos");
-  Object.entries(CLUSTERS).forEach(([key,cluster])=>{
-    const count=entries.filter(e=>e.cluster===key).length;
-    if(count===0)return;
-    const pos=clusterPositions[key];
-    haloLayer.append("circle").attr("cx",pos.x).attr("cy",pos.y)
-      .attr("r",85).attr("fill",cluster.color)
-      .attr("opacity",0.04).attr("filter","url(#cluster-glow)");
+// ─── EDITOR ──────────────────────────────────────────────────
+const PRESET_COLORS = [
+  '#4a9eff','#c9a84c','#f0a040','#2dd4bf',
+  '#9b7fe8','#e05555','#4ade80','#f472b6',
+  '#fb923c','#a78bfa','#34d399','#60a5fa',
+  '#fbbf24','#f87171','#818cf8','#38bdf8',
+];
+
+let activeTab = 'entries';
+
+function openEditor() {
+  closePanel();
+  document.getElementById('editor-panel').classList.add('open');
+  renderEditorTab(activeTab);
+}
+function closeEditor() {
+  document.getElementById('editor-panel').classList.remove('open');
+}
+
+document.getElementById('btn-editor').addEventListener('click', openEditor);
+document.getElementById('editor-close').addEventListener('click', closeEditor);
+
+// Tab switching — delegated to the tabs container
+document.getElementById('editor-tabs').addEventListener('click', e => {
+  const tab = e.target.dataset.tab;
+  if (!tab) return;
+  activeTab = tab;
+  document.querySelectorAll('.editor-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  renderEditorTab(tab);
+});
+
+function renderEditorTab(tab) {
+  const body = document.getElementById('editor-body');
+  if (tab==='entries')  renderEntriesList(body);
+  else if (tab==='clusters') renderClustersList(body);
+  else if (tab==='data')     renderDataTab(body);
+}
+
+// ── ENTRIES LIST ──
+function renderEntriesList(body) {
+  const sorted = [...entries].sort((a,b) => a.id - b.id);
+  body.innerHTML = '';
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'editor-btn primary editor-btn-full';
+  addBtn.textContent = '+ ADD ENTRY';
+  addBtn.onclick = () => renderEntryForm(body, null);
+  body.appendChild(addBtn);
+
+  if (sorted.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'color:var(--text-dim);font-style:italic;font-size:13px;padding:20px 0;';
+    empty.textContent = 'No entries yet. Add your first paper above.';
+    body.appendChild(empty);
+    return;
+  }
+
+  sorted.forEach(e => {
+    const item = document.createElement('div');
+    item.className = 'entry-list-item';
+    const dot = document.createElement('div');
+    dot.className = 'entry-list-dot';
+    dot.style.background = CLUSTERS[e.cluster]?.color || '#888';
+    const num = document.createElement('div');
+    num.className = 'entry-list-num';
+    num.textContent = e.num;
+    const title = document.createElement('div');
+    title.className = 'entry-list-title';
+    title.textContent = e.title;
+    item.appendChild(dot); item.appendChild(num); item.appendChild(title);
+    item.onclick = () => renderEntryForm(body, e);
+    body.appendChild(item);
   });
-},100);
+}
+
+// ── ENTRY FORM ──
+function renderEntryForm(body, entry) {
+  const isNew = !entry;
+  const nextId  = entries.length > 0 ? Math.max(...entries.map(e=>e.id)) + 1 : 1;
+  const nextNum = String(entries.length > 0 ? Math.max(...entries.map(e=>parseInt(e.num,10))) + 1 : 1).padStart(3,'0');
+
+  body.innerHTML = '';
+
+  // Back button
+  const backBtn = document.createElement('button');
+  backBtn.className = 'editor-btn';
+  backBtn.textContent = '← BACK';
+  backBtn.style.marginBottom = '20px';
+  backBtn.onclick = () => renderEntriesList(body);
+  body.appendChild(backBtn);
+
+  const sectionTitle = document.createElement('div');
+  sectionTitle.className = 'editor-section-title';
+  sectionTitle.textContent = isNew ? 'NEW ENTRY' : 'EDIT ENTRY';
+  body.appendChild(sectionTitle);
+
+  // Build cluster options
+  const clusterOptions = Object.entries(CLUSTERS)
+    .map(([key,c]) => `<option value="${key}">${c.name}</option>`)
+    .join('');
+
+  // Form HTML
+  const form = document.createElement('div');
+  form.innerHTML = `
+    <div class="editor-field">
+      <label class="editor-label">Title *</label>
+      <input class="editor-input" id="ef-title" type="text" placeholder="Paper or source title">
+    </div>
+    <div class="editor-field">
+      <label class="editor-label">Authors</label>
+      <input class="editor-input" id="ef-authors" type="text" placeholder="Authors, institution">
+    </div>
+    <div class="editor-field">
+      <label class="editor-label">Date</label>
+      <input class="editor-input" id="ef-date" type="text" placeholder="e.g. Mar 6">
+    </div>
+    <div class="editor-field">
+      <label class="editor-label">Domain *</label>
+      <select class="editor-select" id="ef-cluster">${clusterOptions}</select>
+    </div>
+    <div class="editor-field">
+      <label class="editor-label">Thesis *</label>
+      <textarea class="editor-textarea" id="ef-thesis" placeholder="2–3 sentences: your interpretive position. What does it prove, disrupt, or open up?"></textarea>
+    </div>
+    <div class="editor-field">
+      <label class="editor-label">URL</label>
+      <input class="editor-input" id="ef-url" type="url" placeholder="https://...">
+    </div>
+    <div class="editor-field">
+      <div class="editor-checkbox-row">
+        <input type="checkbox" id="ef-convergence">
+        <label for="ef-convergence">CONVERGENCE — mark as a key entry (glowing ring)</label>
+      </div>
+    </div>
+  `;
+  body.appendChild(form);
+
+  // Set values safely via JS (avoids escaping issues)
+  if (!isNew) {
+    body.querySelector('#ef-title').value   = entry.title   || '';
+    body.querySelector('#ef-authors').value = entry.authors || '';
+    body.querySelector('#ef-date').value    = entry.date    || '';
+    body.querySelector('#ef-cluster').value = entry.cluster || '';
+    body.querySelector('#ef-thesis').value  = entry.thesis  || '';
+    body.querySelector('#ef-url').value     = entry.url     || '';
+    body.querySelector('#ef-convergence').checked = !!entry.convergence;
+  }
+
+  // Connections
+  const connTitle = document.createElement('div');
+  connTitle.className = 'editor-section-title';
+  connTitle.textContent = 'Connections';
+  body.appendChild(connTitle);
+
+  const currentConnIds = isNew ? new Set() : new Set(
+    links.filter(l=>l.source===entry.id||l.target===entry.id)
+      .map(l=>l.source===entry.id?l.target:l.source)
+  );
+
+  const otherEntries = entries.filter(e=>!entry||e.id!==entry.id);
+  const connList = document.createElement('div');
+  connList.className = 'conn-check-list';
+
+  if (otherEntries.length === 0) {
+    connList.innerHTML = '<div style="color:var(--text-dim);font-size:11px;font-style:italic;padding:4px 0;">No other entries yet.</div>';
+  } else {
+    otherEntries.sort((a,b)=>a.id-b.id).forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'conn-check-item';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.id = `conn-${e.id}`; cb.value = e.id;
+      cb.checked = currentConnIds.has(e.id);
+      const lbl = document.createElement('label');
+      lbl.htmlFor = `conn-${e.id}`;
+      lbl.textContent = `${e.num} — ${e.title}`;
+      item.appendChild(cb); item.appendChild(lbl);
+      connList.appendChild(item);
+    });
+  }
+  body.appendChild(connList);
+
+  // Buttons
+  const btnRow = document.createElement('div');
+  btnRow.className = 'editor-btn-row';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'editor-btn primary';
+  saveBtn.textContent = isNew ? 'ADD TO MAP' : 'SAVE CHANGES';
+  saveBtn.onclick = () => {
+    const title  = body.querySelector('#ef-title').value.trim();
+    const thesis = body.querySelector('#ef-thesis').value.trim();
+    const cluster = body.querySelector('#ef-cluster').value;
+    if (!title || !thesis || !cluster) { alert('Title, domain, and thesis are required.'); return; }
+
+    const saved = {
+      id:          isNew ? nextId   : entry.id,
+      num:         isNew ? nextNum  : entry.num,
+      cluster,
+      title,
+      authors:     body.querySelector('#ef-authors').value.trim(),
+      date:        body.querySelector('#ef-date').value.trim(),
+      thesis,
+      convergence: body.querySelector('#ef-convergence').checked,
+      url:         body.querySelector('#ef-url').value.trim() || null,
+    };
+
+    const selectedConns = new Set(
+      [...body.querySelectorAll('.conn-check-item input:checked')].map(el=>+el.value)
+    );
+
+    if (isNew) {
+      entries.push(saved);
+    } else {
+      const idx = entries.findIndex(e=>e.id===entry.id);
+      entries[idx] = saved;
+      // Remove old links
+      links.splice(0, links.length, ...links.filter(l=>l.source!==entry.id&&l.target!==entry.id));
+    }
+
+    // Add links
+    selectedConns.forEach(otherId => {
+      const exists = links.some(l=>(l.source===saved.id&&l.target===otherId)||(l.source===otherId&&l.target===saved.id));
+      if (!exists) links.push({ source: saved.id, target: otherId });
+    });
+
+    saveData();
+    renderGraph();
+    renderEntriesList(body);
+  };
+  btnRow.appendChild(saveBtn);
+
+  if (!isNew) {
+    const delBtn = document.createElement('button');
+    delBtn.className = 'editor-btn danger';
+    delBtn.textContent = 'DELETE';
+    delBtn.onclick = () => {
+      if (!confirm(`Delete "${entry.title}"? This also removes its connections.`)) return;
+      entries.splice(entries.findIndex(e=>e.id===entry.id), 1);
+      links.splice(0, links.length, ...links.filter(l=>l.source!==entry.id&&l.target!==entry.id));
+      saveData();
+      renderGraph();
+      renderEntriesList(body);
+    };
+    btnRow.appendChild(delBtn);
+  }
+
+  body.appendChild(btnRow);
+}
+
+// ── CLUSTERS LIST ──
+function renderClustersList(body) {
+  body.innerHTML = '';
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'editor-btn primary editor-btn-full';
+  addBtn.textContent = '+ ADD DOMAIN';
+  addBtn.onclick = () => renderClusterForm(body, null);
+  body.appendChild(addBtn);
+
+  Object.entries(CLUSTERS).forEach(([key, c]) => {
+    const count = entries.filter(e=>e.cluster===key).length;
+    const item = document.createElement('div');
+    item.className = 'entry-list-item';
+    item.innerHTML = `
+      <div class="entry-list-dot" style="background:${c.color};box-shadow:0 0 6px ${c.color}77;width:8px;height:8px;margin-top:4px;"></div>
+      <div style="flex:1">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:0.1em;">${c.name}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--gold-dim);margin-top:3px;">${count} ${count===1?'entry':'entries'}</div>
+      </div>
+    `;
+    item.onclick = () => renderClusterForm(body, key);
+    body.appendChild(item);
+  });
+}
+
+// ── CLUSTER FORM ──
+function renderClusterForm(body, key) {
+  const isNew = !key;
+  const cluster = isNew ? { name:'', color: PRESET_COLORS[0] } : CLUSTERS[key];
+
+  body.innerHTML = '';
+
+  const backBtn = document.createElement('button');
+  backBtn.className = 'editor-btn';
+  backBtn.textContent = '← BACK';
+  backBtn.style.marginBottom = '20px';
+  backBtn.onclick = () => renderClustersList(body);
+  body.appendChild(backBtn);
+
+  const sectionTitle = document.createElement('div');
+  sectionTitle.className = 'editor-section-title';
+  sectionTitle.textContent = isNew ? 'NEW DOMAIN' : 'EDIT DOMAIN';
+  body.appendChild(sectionTitle);
+
+  const form = document.createElement('div');
+  form.innerHTML = `
+    <div class="editor-field">
+      <label class="editor-label">Name *</label>
+      <input class="editor-input" id="cf-name" type="text" placeholder="e.g. Sociology">
+    </div>
+    ${isNew ? `<div class="editor-field">
+      <label class="editor-label">Key (lowercase, underscores only) *</label>
+      <input class="editor-input" id="cf-key" type="text" placeholder="e.g. sociology">
+    </div>` : ''}
+    <div class="editor-field">
+      <label class="editor-label">Color</label>
+      <div class="color-swatch-row" id="cf-swatches">
+        ${PRESET_COLORS.map(c=>`<div class="color-swatch" style="background:${c}" data-color="${c}"></div>`).join('')}
+      </div>
+      <input class="editor-input" id="cf-color" type="text" placeholder="#hex" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;">
+    </div>
+  `;
+  body.appendChild(form);
+
+  // Set values
+  body.querySelector('#cf-name').value = cluster.name;
+  body.querySelector('#cf-color').value = cluster.color;
+
+  // Mark selected swatch
+  const swatches = body.querySelectorAll('.color-swatch');
+  swatches.forEach(sw => {
+    if (sw.dataset.color === cluster.color) sw.classList.add('selected');
+    sw.onclick = () => {
+      swatches.forEach(s=>s.classList.remove('selected'));
+      sw.classList.add('selected');
+      body.querySelector('#cf-color').value = sw.dataset.color;
+    };
+  });
+  body.querySelector('#cf-color').oninput = function() {
+    swatches.forEach(s => s.classList.toggle('selected', s.dataset.color===this.value));
+  };
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'editor-btn-row';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'editor-btn primary';
+  saveBtn.textContent = isNew ? 'ADD DOMAIN' : 'SAVE CHANGES';
+  saveBtn.onclick = () => {
+    const name  = body.querySelector('#cf-name').value.trim();
+    const color = body.querySelector('#cf-color').value.trim();
+    if (!name || !color) { alert('Name and color are required.'); return; }
+
+    if (isNew) {
+      const rawKey = body.querySelector('#cf-key').value.trim();
+      const newKey = rawKey.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+      if (!newKey) { alert('A valid key is required (lowercase letters, numbers, underscores).'); return; }
+      if (CLUSTERS[newKey]) { alert(`The key "${newKey}" already exists.`); return; }
+      CLUSTERS[newKey] = { name, color, short: name.toUpperCase().slice(0,8) };
+    } else {
+      CLUSTERS[key].name  = name;
+      CLUSTERS[key].color = color;
+    }
+
+    saveData();
+    renderGraph();
+    renderClustersList(body);
+  };
+  btnRow.appendChild(saveBtn);
+
+  if (!isNew) {
+    const delBtn = document.createElement('button');
+    delBtn.className = 'editor-btn danger';
+    delBtn.textContent = 'DELETE';
+    delBtn.onclick = () => {
+      const count = entries.filter(e=>e.cluster===key).length;
+      if (count > 0) {
+        alert(`Cannot delete — ${count} ${count===1?'entry uses':'entries use'} this domain. Reassign or delete those entries first.`);
+        return;
+      }
+      if (!confirm(`Delete domain "${CLUSTERS[key].name}"?`)) return;
+      delete CLUSTERS[key];
+      saveData();
+      renderGraph();
+      renderClustersList(body);
+    };
+    btnRow.appendChild(delBtn);
+  }
+
+  body.appendChild(btnRow);
+}
+
+// ── DATA TAB ──
+function renderDataTab(body) {
+  body.innerHTML = '';
+
+  const cards = [
+    {
+      title: 'Export Map',
+      desc:  'Download your entries, connections, and domains as a JSON file. Keep this as your backup.',
+      btnText: 'DOWNLOAD JSON',
+      btnClass: 'primary',
+      action: exportData,
+    },
+    {
+      title: 'Import Map',
+      desc:  'Load a previously exported JSON file. This replaces your current map.',
+      btnText: 'LOAD JSON FILE',
+      btnClass: '',
+      action: null, // handled separately
+    },
+    {
+      title: 'Reset to Template',
+      desc:  'Remove all your entries and restore the original example map. Cannot be undone.',
+      btnText: 'RESET TO TEMPLATE',
+      btnClass: 'danger',
+      action: () => {
+        if (!confirm('Reset to template? All your entries will be lost.')) return;
+        localStorage.removeItem('analecta_data');
+        location.reload();
+      },
+    },
+  ];
+
+  cards.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'data-card';
+    if (i === 2) el.style.borderColor = 'rgba(224,85,85,0.25)';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'data-card-title';
+    titleEl.textContent = card.title;
+    if (i === 2) titleEl.style.color = 'rgba(224,85,85,0.7)';
+
+    const descEl = document.createElement('div');
+    descEl.className = 'data-card-desc';
+    descEl.textContent = card.desc;
+
+    const btn = document.createElement('button');
+    btn.className = `editor-btn ${card.btnClass}`;
+    btn.textContent = card.btnText;
+
+    el.appendChild(titleEl); el.appendChild(descEl); el.appendChild(btn);
+
+    if (i === 1) {
+      // Import — use hidden file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file'; fileInput.accept = '.json'; fileInput.style.display = 'none';
+      fileInput.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try { importData(JSON.parse(ev.target.result)); }
+          catch { alert('Invalid JSON file — make sure it was exported from Analecta.'); }
+        };
+        reader.readAsText(file);
+      };
+      el.appendChild(fileInput);
+      btn.onclick = () => fileInput.click();
+    } else {
+      btn.onclick = card.action;
+    }
+
+    body.appendChild(el);
+  });
+}
 
 // ─── RESIZE ──────────────────────────────────────────────────
 let lastW = window.innerWidth, lastH = window.innerHeight;
-window.addEventListener("resize",()=>{
+window.addEventListener("resize", () => {
   const newW = window.innerWidth, newH = window.innerHeight;
-  if (newW === lastW && newH === lastH) return;
-  const orientationFlipped = (newW > newH) !== (lastW > lastH);
-  lastW = newW; lastH = newH;
+  if (newW===lastW && newH===lastH) return;
+  const orientationFlipped = (newW>newH) !== (lastW>lastH);
+  lastW=newW; lastH=newH;
   layout = getLayout();
   clusterPositions = layout.pos;
   W = layout.W; H = layout.H;
   const f = simForces(layout);
-  Object.entries(CLUSTERS).forEach(([key])=>{
-    const pos = clusterPositions[key];
-    if (clusterLabelSel[key]) {
-      clusterLabelSel[key].attr("x",pos.x).attr("y",Math.max(pos.y-82,110));
-    }
-  });
   simulation
-    .force("cluster_x", d3.forceX(d=>clusterPositions[d.cluster].x).strength(f.clusterStr))
-    .force("cluster_y", d3.forceY(d=>clusterPositions[d.cluster].y).strength(f.clusterStr))
+    .force("cluster_x", d3.forceX(d=>clusterPositions[d.cluster]?.x||W/2).strength(f.clusterStr))
+    .force("cluster_y", d3.forceY(d=>clusterPositions[d.cluster]?.y||H/2).strength(f.clusterStr))
     .force("charge", d3.forceManyBody().strength(f.chargeStr))
     .force("collide", d3.forceCollide(f.collideR))
     .force("center", d3.forceCenter(newW*0.48, newH*0.48).strength(0.005));
   if (orientationFlipped) {
-    nodeData.forEach(d=>{
-      d.x = clusterPositions[d.cluster].x + (Math.random()-0.5)*80;
-      d.y = clusterPositions[d.cluster].y + (Math.random()-0.5)*80;
+    nodeData.forEach(d => {
+      d.x = (clusterPositions[d.cluster]?.x||W/2) + (Math.random()-0.5)*80;
+      d.y = (clusterPositions[d.cluster]?.y||H/2) + (Math.random()-0.5)*80;
       d.vx = 0; d.vy = 0;
     });
   }
-  simulation.alpha(orientationFlipped ? 0.8 : 0.3).restart();
+  simulation.alpha(orientationFlipped?0.8:0.3).restart();
 });
+
+// ─── INIT ─────────────────────────────────────────────────────
+loadData();
+renderGraph();
 </script>
 </body>
 </html>

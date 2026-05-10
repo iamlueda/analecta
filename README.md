@@ -16,6 +16,16 @@ The key layer is the **thesis**: a 2–3 sentence interpretive compression of ea
 
 No build step. No dependencies to install. It is one HTML file.
 
+### Option A — In-browser editor (no code required)
+
+1. Fork this repo and enable GitHub Pages, or download `index.html` and open it in a browser
+2. Click **EDIT** (bottom right) to open the editor panel
+3. Add your papers, domains, and connections through the form — no code editing needed
+4. Your map auto-saves to your browser's local storage
+5. Use **Data → Export JSON** to download a backup file you can reload anytime
+
+### Option B — Edit the code directly
+
 1. Fork or download this repo
 2. Open `index.html` in a text editor
 3. Edit the `CLUSTERS` object with your domains
@@ -23,6 +33,18 @@ No build step. No dependencies to install. It is one HTML file.
 5. Add connections in the `links` array
 6. Update the header and home link to match your site
 7. Host anywhere — GitHub Pages, Netlify, cPanel, or open it locally in a browser
+
+## The editor
+
+The **EDIT** button opens a panel with three tabs:
+
+- **Entries** — add, edit, or delete papers. Set the title, authors, date, domain, thesis, URL, and convergence flag. Tick checkboxes to draw connections to other entries.
+- **Domains** — add or edit research clusters. Choose a name, key, and color.
+- **Data** — export your map as a JSON file, import a previous export, or reset to the template.
+
+All changes auto-save to `localStorage`. Your map persists across page refreshes without any account or server. Export regularly as a backup.
+
+---
 
 ## The entry format
 
@@ -54,7 +76,7 @@ The difference: the first describes. The second stakes a claim.
 
 ## Customizing clusters
 
-Edit the `CLUSTERS` object near the top of the script:
+Use the **Domains** tab in the editor, or edit the `CLUSTERS` object directly in the code:
 
 ```javascript
 const CLUSTERS = {
