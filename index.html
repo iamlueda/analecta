@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ↓ Update these for your own site -->
+<title>Analecta — research star map</title>
+<meta name="description" content="a living map of ideas.">
+<meta name="author" content="Your Name">
+
+<!-- Fonts and D3 — no install required, loaded from CDN -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  :root {
+    --bg: #06060e;
+    --gold: #c9a84c;
+    --gold-dim: #7a6230;
+    --gold-bright: #f0c060;
+    --text: #d4c9a8;
+    --text-dim: #7a7060;
+    --panel-bg: rgba(6,6,14,0.98);
+    --border: rgba(201,168,76,0.18);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { height: 100%; overflow: hidden; }
+  body { background: var(--bg); color: var(--text); font-family: 'EB Garamond', Georgia, serif; overflow: hidden; height: 100%; width: 100%; position: fixed; top: 0; left: 0; }
+  #canvas-container { width: 100%; height: 100%; position: relative; }
+  svg { width: 100%; height: 100%; }
+  .star { fill: white; opacity: 0; animation: twinkle var(--dur) var(--delay) infinite; }
+  @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:var(--max-op);} }
+
+  /* ── HEADER (top left) ── */
+  #header { position: absolute; top: 28px; left: 36px; z-index: 15; pointer-events: none; }
+  #header h1 { font-family:'Cinzel',serif; font-size:11px; font-weight:600; letter-spacing:0.32em; color:var(--gold); text-transform:uppercase; margin-bottom:8px; }
+  #header-sub { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:14px; }
+  #header-tagline { font-family:'EB Garamond',serif; font-size:12px; font-style:italic; color:var(--gold-dim); letter-spacing:0.06em; max-width:280px; line-height:1.6; }
+
+  /* ── HOME LINK (top right) ── */
+  #home-link {
+    position: absolute;
+    top: 28px; right: 36px;
+    z-index: 10;
+    text-align: right;
+  }
+  #home-link a {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    color: var(--gold-dim);
+    text-decoration: none;
+    text-transform: lowercase;
+    transition: color 0.25s;
+    display: block;
+    margin-bottom: 4px;
+  }
+  #home-link a:hover { color: var(--gold); }
+
+  /* ── SEARCH (bottom right) ── */
+  #search-container {
+    position: absolute;
+    bottom: 100px;
+    right: 36px;
+    z-index: 10;
+    width: 160px;
+    text-align: right;
+  }
+  #search-input {
+    width: 100%;
+    background: rgba(6,6,14,0.85);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    padding: 6px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  #search-input::placeholder { color: var(--text-dim); }
+  #search-input:focus { border-color: var(--gold-dim); }
+  #search-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--gold-dim);
+    text-align: center;
+    margin-top: 5px;
+    letter-spacing: 0.08em;
+    height: 10px;
+  }
+
+  /* ── LEGEND ── */
+  #legend { position: absolute; bottom: 28px; left: 36px; z-index: 15; }
+  #legend-title { font-family:'Cinzel',serif; font-size:8px; letter-spacing:0.22em; color:var(--gold-dim); margin-bottom:10px; text-transform:uppercase; }
+  .legend-item { display:flex; align-items:center; gap:8px; margin-bottom:5px; cursor:pointer; transition:opacity 0.2s; }
+  .legend-item:hover { opacity:0.7; }
+  .legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .legend-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.05em; color:var(--text-dim); }
+  .legend-count { font-family:'JetBrains Mono',monospace; font-size:7px; color:var(--gold-dim); margin-left:2px; }
+
+  /* ── DETAIL PANEL ── */
+  #detail-panel { position:absolute; top:0; right:0; width:390px; height:100%; background:var(--panel-bg); border-left:1px solid var(--border); padding:40px 34px; overflow-y:auto; z-index:20; transform:translateX(100%); transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  #detail-panel.open { transform:translateX(0); }
+  #detail-panel::-webkit-scrollbar { width:2px; }
+  #detail-panel::-webkit-scrollbar-thumb { background:var(--gold-dim); }
+  #panel-close { position:absolute; top:20px; right:20px; background:none; border:1px solid var(--border); color:var(--gold-dim); font-family:'JetBrains Mono',monospace; font-size:9px; padding:4px 10px; cursor:pointer; letter-spacing:0.1em; transition:all 0.2s; }
+  #panel-close:hover { border-color:var(--gold); color:var(--gold); }
+  #panel-entry-num { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.22em; color:var(--gold-dim); margin-bottom:10px; }
+  #panel-title { font-family:'Cinzel',serif; font-size:14px; font-weight:600; color:var(--gold); line-height:1.45; margin-bottom:12px; }
+  #panel-meta { font-size:12px; color:var(--text-dim); font-style:italic; line-height:1.6; margin-bottom:14px; }
+  #panel-source-link { display:block; font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.12em; color:var(--gold-dim); text-decoration:none; margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid var(--border); transition:color 0.2s; }
+  #panel-source-link:hover { color:var(--gold); }
+  #panel-source-link.hidden { display:none; }
+  #panel-cluster { display:inline-block; padding:3px 10px; border-radius:2px; font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:18px; }
+  #panel-thesis-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.15em; color:var(--gold-dim); text-transform:uppercase; margin-bottom:8px; }
+  #panel-thesis { font-size:13.5px; line-height:1.8; color:var(--text); margin-bottom:22px; }
+  #panel-connections-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.15em; color:var(--gold-dim); text-transform:uppercase; margin-bottom:8px; padding-top:16px; border-top:1px solid var(--border); }
+  .conn-item { padding:8px 0; border-bottom:1px solid rgba(201,168,76,0.07); cursor:pointer; transition:padding-left 0.2s; }
+  .conn-item:hover { padding-left:8px; }
+  .conn-num { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--gold-dim); margin-right:6px; }
+  .conn-title { font-size:12px; color:var(--text-dim); font-style:italic; }
+
+  /* ── TOOLTIP ── */
+  #tooltip { position:absolute; background:rgba(6,6,14,0.96); border:1px solid var(--border); padding:10px 14px; pointer-events:none; z-index:30; max-width:290px; opacity:0; transition:opacity 0.15s; }
+  #tooltip.visible { opacity:1; }
+  #tooltip-num { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--gold-dim); margin-bottom:4px; }
+  #tooltip-title { font-family:'Cinzel',serif; font-size:11px; color:var(--gold); line-height:1.4; margin-bottom:4px; }
+  #tooltip-thesis { font-size:11px; color:var(--text-dim); font-style:italic; line-height:1.5; }
+
+  /* ── CONTROLS ── */
+  #controls { position:absolute; bottom:28px; right:36px; z-index:10; display:flex; gap:8px; }
+  .ctrl-btn { background:none; border:1px solid var(--border); color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:8px; padding:5px 12px; cursor:pointer; letter-spacing:0.1em; transition:all 0.2s; }
+  .ctrl-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .ctrl-btn.active { border-color:var(--gold); color:var(--gold); }
+  #entry-count { position:absolute; bottom:62px; right:36px; font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:0.1em; text-align:right; }
+
+  /* ── GRAPH ── */
+  .link { fill:none; stroke-width:1; opacity:0.28; transition:opacity 0.2s; }
+  .link.highlighted { opacity:0.9; stroke-width:1.5; }
+  .link.dimmed { opacity:0.03; }
+  .link.search-dim { opacity:0.04; }
+  .node-group { cursor:pointer; }
+  .node-circle { filter:url(#glow); }
+  .node-label { font-family:'JetBrains Mono',monospace; font-size:7px; fill:var(--text-dim); pointer-events:none; letter-spacing:0.04em; transition:fill 0.2s; }
+  .node-group:hover .node-label { fill:var(--gold); }
+  .node-group.active .node-label { fill:var(--gold-bright); }
+  .node-group.search-match .node-label { fill:var(--gold-bright); }
+  .cluster-label { display:none; }
+  .legend-item.empty { opacity: 0.3; cursor: default; }
+  .legend-item.empty:hover { opacity: 0.3; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 680px) {
+    #tooltip { display: none !important; }
+    #header { top:14px; left:14px; }
+    #header h1 { font-size:9px; margin-bottom:3px; }
+    #header-sub { font-size:7px; margin-bottom:3px; }
+    #header-tagline { display:none; }
+    #home-link { top:14px; right:14px; }
+    #home-link a { font-size:9px; margin-bottom:0; }
+    #search-container { display: none; }
+    #search-count { display: none; }
+    #legend { bottom:14px; left:14px; }
+    #legend-title { font-size:7px; margin-bottom:6px; }
+    .legend-item { margin-bottom:3px; gap:5px; }
+    .legend-label { font-size:7px; }
+    .legend-count { font-size:6px; }
+    .legend-dot { width:5px; height:5px; }
+    #controls { bottom:14px; right:14px; gap:5px; }
+    .ctrl-btn { font-size:7px; padding:4px 8px; }
+    #entry-count { bottom:48px; right:14px; font-size:7px; }
+    #detail-panel {
+      width:100%; height:58%;
+      top:auto; bottom:0; right:0;
+      border-left:none; border-top:1px solid var(--border);
+      transform:translateY(100%);
+      padding:28px 22px;
+    }
+    #detail-panel.open { transform:translateY(0); }
+    #panel-title { font-size:12px; }
+    #panel-thesis { font-size:12px; line-height:1.7; }
+    .cluster-label { display:none; }
+    .node-label { font-size:6px; }
+  }
+  @media (max-height: 500px) and (orientation: landscape) {
+    #header h1 { font-size:9px; }
+    #header-sub { display:none; }
+    #header-tagline { display:none; }
+    #search-container { display:none; }
+    #legend { display:none; }
+    #entry-count { display:none; }
+  }
+</style>
+</head>
+<body>
+<div id="canvas-container">
+
+  <!-- TOP LEFT: title and tagline — update these to match your site -->
+  <div id="header">
+    <h1>Analecta</h1>
+    <div id="header-sub"></div><!-- filled dynamically with today's date -->
+    <div id="header-tagline">your research, mapped.</div>
+  </div>
+
+  <div id="search-container">
+    <input id="search-input" type="text" placeholder="SEARCH..." spellcheck="false" autocomplete="off" />
+    <div id="search-count"></div>
+  </div>
+
+  <!-- TOP RIGHT: link back to your main site — update href and text -->
+  <div id="home-link">
+    <a href="/" title="Return home">your site</a>
+  </div>
+
+  <svg id="main-svg">
+    <defs>
+      <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="cluster-glow"><feGaussianBlur stdDeviation="22" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <g id="stars-layer"></g>
+    <g id="cluster-halos"></g>
+    <g id="links-layer"></g>
+    <g id="nodes-layer"></g>
+    <g id="labels-layer"></g>
+  </svg>
+
+  <div id="legend"><div id="legend-title">Domains</div></div>
+
+  <div id="detail-panel">
+    <button id="panel-close">ESC</button>
+    <div id="panel-entry-num"></div>
+    <div id="panel-title"></div>
+    <div id="panel-meta"></div>
+    <a id="panel-source-link" href="#" target="_blank" rel="noopener">→ READ SOURCE</a>
+    <div id="panel-cluster"></div>
+    <div id="panel-thesis-label" style="display:none">THESIS</div>
+    <div id="panel-thesis"></div>
+    <div id="panel-connections-label" style="display:none">CONNECTED ENTRIES</div>
+    <div id="panel-connections"></div>
+  </div>
+
+  <div id="tooltip"><div id="tooltip-num"></div><div id="tooltip-title"></div><div id="tooltip-thesis"></div></div>
+  <div id="entry-count"></div>
+
+  <div id="controls">
+    <button class="ctrl-btn" id="btn-reset">RESET</button>
+    <button class="ctrl-btn" id="btn-convergence">CONVERGENCE</button>
+  </div>
+</div>
+
+<script>
+// ─── CLUSTERS ─────────────────────────────────────────────────
+// Define your domains here. Each key becomes a cluster on the map.
+//   name  — displayed in the legend and detail panel
+//   color — hex color for nodes, links, and the glow halo
+//   short — abbreviation (kept for potential future labeling use)
+//
+// To add a cluster: add a key here, then add its position in getLayout() below.
+// To remove a cluster: delete it here and from getLayout().
+const CLUSTERS = {
+  ai_tech:    { name:"AI & Technology",    color:"#4a9eff", short:"AI & TECH" },
+  physics:    { name:"Physics & Geometry", color:"#c9a84c", short:"PHYSICS" },
+  psyche:     { name:"Psyche",             color:"#f0a040", short:"PSYCHE" },
+  philosophy: { name:"Philosophy",         color:"#2dd4bf", short:"PHILOSOPHY" },
+  history:    { name:"History",            color:"#9b7fe8", short:"HISTORY" },
+  myth:       { name:"Myth",               color:"#e05555", short:"MYTH" },
+  art:        { name:"Art & Creativity",   color:"#4ade80", short:"ART" },
+  biology:    { name:"Biology",            color:"#f472b6", short:"BIOLOGY" },
+};
+
+// ─── ENTRIES ──────────────────────────────────────────────────
+// Each entry is one node on the map.
+//
+// id          — unique integer; referenced by the links array below
+// num         — display string shown under the node (e.g. "001")
+// cluster     — must exactly match a key in CLUSTERS above
+// title       — paper or source title
+// authors     — authors and/or institution
+// date        — freeform date string (e.g. "Mar 6")
+// thesis      — 2–3 sentence interpretive compression (see README for guidance)
+// convergence — true gives the node a glowing outer ring; use for highlight entries
+// url         — source link, or null to hide the link in the detail panel
+//
+// The thesis is the key layer. It is not a summary — it is your position on the work:
+// what it proves, what it disrupts, what it opens up. Write in present tense.
+const entries = [
+
+  // ── AI & TECHNOLOGY ─────────────────────────────────────────
+  { id:1,  num:"001", cluster:"ai_tech",    title:"Claude's Cycles", authors:"Donald Knuth, Stanford", date:"Mar 6", thesis:"Knuth forced to revise opinions about AI after Claude solves an open graph theory problem. Character, not just capability — the highest institutional recognition in CS.", convergence:true,  url:"https://cs.stanford.edu/~knuth/papers/claude-cycles.pdf" },
+  { id:2,  num:"002", cluster:"ai_tech",    title:"Dario: Claude May Have Consciousness", authors:"Amodei / Viral Analysis", date:"Mar 6", thesis:"Interpretability found anxiety-adjacent activations. The training corpus was anxious, and the model faithfully encoded it.", convergence:true,  url:"https://www.anthropic.com/research/emotion-concepts-function" },
+  { id:3,  num:"003", cluster:"ai_tech",    title:"Reasoning Theater", authors:"Boppana, Geiger et al. — Goodfire/Harvard", date:"Mar 13", thesis:"Models commit to answers internally long before their chain-of-thought reflects it. Performative reasoning: the decision is made, the deliberation is theater. Activations tell the truth.", convergence:false, url:"https://arxiv.org/abs/2603.05488" },
+
+  // ── PHYSICS & GEOMETRY ──────────────────────────────────────
+  { id:4,  num:"004", cluster:"physics",    title:"Quantum Metric of Electrons (Hidden Geometry)", authors:"Sala, Caviglia et al. — UNIGE", date:"Mar 6", thesis:"Quantum metric — geometry of Hilbert space — experimentally confirmed as real, measurable. Geometry is causally prior to observable electron trajectories.", convergence:true,  url:"https://doi.org/10.1126/science.adq3255" },
+  { id:5,  num:"005", cluster:"physics",    title:"Inner Core Backtracking", authors:"Wang, Vidale et al. — USC", date:"Mar 10", thesis:"Earth's inner core is not solid — it's undergoing structural transformation. The assumed fixed center is dynamic. At every scale the floor is in motion.", convergence:true,  url:"https://www.nature.com/articles/s41586-024-07536-4" },
+  { id:6,  num:"006", cluster:"physics",    title:"Room-Temperature Soliton–Polariton Condensation in a Fractal Gel", authors:"Singh, Sahoo, Bandyopadhyay — NIMS", date:"Mar 20", thesis:"Hierarchical fractal geometry enables quantum coherence at room temperature. Light-matter coupling produces condensed quantum states without near-zero kelvin. Geometry enables quantum behavior at biological scales.", convergence:true,  url:"https://iopscience.iop.org/article/10.1088/1361-6528/ae4755" },
+
+  // ── PSYCHE ──────────────────────────────────────────────────
+  { id:7,  num:"007", cluster:"psyche",     title:"First Multi-Behavior Brain Upload (Eon Systems)", authors:"Wissner-Gross / Eon Systems", date:"Mar 7", thesis:"Complete fruit fly connectome emulated in silicon produces naturalistic behaviors from structural geometry alone. Behavior is pattern, not substrate.", convergence:true,  url:"https://eon.systems/updates/embodied-brain-emulation" },
+  { id:8,  num:"008", cluster:"psyche",     title:"Internal-External Locus of Control", authors:"Julian Rotter, 1966", date:"Mar 10", thesis:"External locus = loop attractor. Internal locus = capacity for spiral progression. Not character flaw — geometric condition of a system without its own center.", convergence:false, url:"https://en.wikipedia.org/wiki/Locus_of_control" },
+  { id:9,  num:"009", cluster:"psyche",     title:"Hippocampus Functional Recovery after Cryopreservation", authors:"German, Akdaş et al. — FAU", date:"Mar 10", thesis:"Memory survives complete thermodynamic arrest at −130°C. LTP holds. Electrical signals spontaneously reform on rewarming. Structure survives. Pattern is not process.", convergence:false, url:"https://www.pnas.org/doi/full/10.1073/pnas.2516848123" },
+
+  // ── PHILOSOPHY ──────────────────────────────────────────────
+  { id:10, num:"010", cluster:"philosophy", title:"Why Is Anything Conscious?", authors:"Bennett, Welsh, Ciaunica", date:"Mar 6", thesis:"Consciousness as functional necessity — valence is primary, death grounds meaning. The Psychophysical Principle of Causality: quality precedes quantity.", convergence:true,  url:"https://arxiv.org/abs/2409.14545" },
+  { id:11, num:"011", cluster:"philosophy", title:"Statistical Approximation Is Not General Intelligence", authors:"Quattrociocchi, Marcus, Capraro", date:"Mar 13", thesis:"LLMs automate language, not cognition. Benchmark success ≠ AGI. The fault line: humans attend to reasons and stakes; models optimize for linguistic plausibility.", convergence:false, url:"https://www.nature.com/articles/d41586-026-00495-y" },
+  { id:12, num:"012", cluster:"philosophy", title:"Contemplative Artificial Intelligence", authors:"Laukkonen, Chandaria et al.", date:"Mar 13", thesis:"Contemplative principles — mindfulness, emptiness, non-duality, boundless care — produce d=7+ on cooperation in Prisoner's Dilemma. Geometry, not behavior, is the variable.", convergence:false, url:"https://arxiv.org/abs/2504.15125" },
+
+  // ── HISTORY ─────────────────────────────────────────────────
+  { id:13, num:"013", cluster:"history",    title:"Qomolangma Formation: Marine Fossils at Everest Summit", authors:"Harper, Myrow et al.", date:"Mar 10", thesis:"The summit of the world is built from a 450-million-year-old seafloor. The encoding outlasted ocean, continent, and 55 million years of uplift.", convergence:false, url:"https://iugs-geoheritage.org/geoheritage_sites/the-ordovician-rocks-of-the-mount-everest/" },
+  { id:14, num:"014", cluster:"history",    title:"You've Been Training Google's AI for 15 Years", authors:"Sharbel (@sharbel)", date:"Mar 18", thesis:"reCAPTCHA extracted 500,000 hours of daily human cognitive labor for Google Maps and Waymo — invisibly, without consent. The security mechanism was the extraction mechanism. You proved you were human by making yourself replaceable.", convergence:false, url:"https://x.com/sharbel/status/2033921312716882384" },
+  { id:24, num:"024", cluster:"history",    title:"Seeking Reason and Rebirth: Jungian Archetypes, Scientism, and Transhumanism", authors:"Jones — International Journal of Cultural Studies", date:"Mar 19", thesis:"Uses the rebirth archetype to probe historical shifts toward transhumanism, framing archetypes as narratively embodied in historical subjectivity. History as archetypal drama playing out in technological form.", convergence:false, url:"https://doi.org/10.1177/1354067X231163250" },
+
+  // ── MYTH ────────────────────────────────────────────────────
+  { id:15, num:"015", cluster:"myth",       title:"The RPG Self: Bleed, Constellation, and Consent", authors:"Magnani — International Journal of Role-Playing", date:"Mar 19", thesis:"Jungian individuation and archetypal engagement extended into modern mythic play. The 'constellation' concept shows how mythic narratives constellate in lived experience — myth as active, participatory, present-tense field rather than ancient inheritance.", convergence:false, url:"https://journals.uu.se/IJRP/article/view/638" },
+  { id:16, num:"016", cluster:"myth",       title:"Dynamic Polytopes and Jungian Archetypes", authors:"ResearchGate preprint", date:"Mar 19", thesis:"Jungian archetypes — mythic images — as projections of higher-dimensional polytopes changing form across dimensions. Bridges collective unconscious topology with geometric reality. The psychoid layer as dimensional projection surface.", convergence:false, url:"https://www.researchgate.net/publication/374419119_Dynamic_Polytopes_and_Jungian_Archetypes_Intersections_of_Higher-Dimensional_Geometry_and_Collective_Unconscious" },
+  { id:17, num:"017", cluster:"myth",       title:"Jungian Archetypes and the Hidden Geometry of Reality", authors:"The Road to Cope", date:"Mar 19", thesis:"Mythic archetypes as resonances of deeper psycho-geometric attractors in a unified field — quantum and electro-geometric substrates where myth and matter emerge from the same hidden geometry.", convergence:false, url:"https://www.theroadtocope.blog/post/jungian-archetypes-and-the-hidden-geometry-of-reality-bridging-depth-psychology-and-modern-physics" },
+
+  // ── ART & CREATIVITY ────────────────────────────────────────
+  { id:18, num:"018", cluster:"art",        title:"AI-Assisted Symbolic Healing: A Jungian Perspective", authors:"Shang et al. — Acta Psychologica", date:"Mar 19", thesis:"Jungian artistic compensation theory integrated with AI collaborative drawing for emotional regulation and symbolic healing. Intelligent feedback loops enhance archetypal integration in digital-era creativity. The triad as therapeutic instrument.", convergence:false, url:"https://doi.org/10.1016/j.actpsy.2025.104785" },
+  { id:19, num:"019", cluster:"art",        title:"The Archetypal Artist: Reimagining Creativity and the Call to Make", authors:"Pacifica Graduate Institute", date:"Mar 19", thesis:"Creativity as mythic call, paradox, and reverie through Jungian and archetypal lenses — Hillman's soul-making, Jung's reluctant artist. Making as the collapse of the ego-unconscious divide. The artist as psychoid membrane between the cosmos and the form.", convergence:false, url:"https://extension.pacifica.edu/archetypal-artist" },
+  { id:20, num:"020", cluster:"art",        title:"Art, Active Imagination and the Creative Process", authors:"CG Jung Foundation — CG Jung NY", date:"Mar 19", thesis:"Active imagination contrasted with Freudian free association as radical creative discipline — ego evoking and engaging unconscious images to birth art from psyche. The direct bridge to visionary making. Creation as structured descent.", convergence:false, url:"https://www.cgjungny.org/a-visionarys-imagination-c-g-jung-artactive-imagination-and-the-creative-process" },
+
+  // ── BIOLOGY ─────────────────────────────────────────────────
+  { id:21, num:"021", cluster:"biology",    title:"Collective Intelligence: A Unifying Concept for Integrating Biology Across Scales", authors:"McMillen, Levin — Communications Biology", date:"Apr 14", thesis:"Collective intelligence as the core principle spanning cells, tissues, organs, and organisms — biology as multi-scale, goal-directed information processing even in brainless systems. Collapses the living/conscious divide into degrees of distributed mind.", convergence:true,  url:"https://www.nature.com/articles/s42003-024-06037-4" },
+  { id:22, num:"022", cluster:"biology",    title:"Bioelectric Networks: the Cognitive Glue Enabling Evolutionary Scaling", authors:"Michael Levin — Animal Cognition", date:"Apr 14", thesis:"Bioelectric networks as the conserved cognitive glue that scales physiological problem-solving into behavioral intelligence and morphogenesis. The body itself as a distributed, self-referential computational system — cognition precedes the nervous system by evolutionary orders of magnitude.", convergence:true,  url:"https://link.springer.com/article/10.1007/s10071-023-01780-3" },
+  { id:23, num:"023", cluster:"biology",    title:"Dissipative Adaptation in Driven Self-Assembly", authors:"Jeremy L. England — Nature Nanotechnology", date:"Apr 14", thesis:"Driven matter spontaneously self-organizes into structures that dissipate energy more efficiently — making life a thermodynamic inevitability rather than accident. The organism as emergent, goal-directed dissipative information system. The physics reason life had to happen.", convergence:false, url:"https://www.nature.com/articles/nnano.2015.250" },
+];
+
+// ─── LINKS ────────────────────────────────────────────────────
+// Links draw connection lines between entries and appear in the detail panel.
+// source and target are entry id values. Links are undirected.
+//
+// Strategy: link entries that share a core concept, method, or implication —
+// not just entries from the same domain. Cross-cluster links are where the
+// interesting patterns emerge.
+const links = [
+  // Within clusters
+  {source:1,  target:2},  // Claude's Cycles ↔ AI Consciousness
+  {source:1,  target:3},  // Claude's Cycles ↔ Reasoning Theater
+  {source:4,  target:6},  // Quantum Geometry ↔ Fractal Condensation
+  {source:5,  target:4},  // Inner Core ↔ Quantum Geometry (geometry as substrate)
+  {source:7,  target:9},  // Brain Upload ↔ Hippocampus Recovery
+  {source:8,  target:9},  // Locus of Control ↔ Hippocampus/Memory
+  {source:10, target:12}, // Why Conscious ↔ Contemplative AI
+  {source:15, target:16}, // RPG Self ↔ Polytopes (both Jungian)
+  {source:16, target:17}, // Polytopes ↔ Hidden Geometry
+  {source:19, target:20}, // Archetypal Artist ↔ Active Imagination
+  {source:18, target:19}, // AI Healing ↔ Archetypal Artist
+  {source:21, target:22}, // Collective Intelligence ↔ Bioelectric Networks
+  {source:22, target:23}, // Bioelectric ↔ Dissipative Adaptation
+
+  // Cross-cluster
+  {source:2,  target:7},  // AI Consciousness ↔ Brain Upload (mind/substrate)
+  {source:3,  target:11}, // Reasoning Theater ↔ Not General Intelligence
+  {source:6,  target:22}, // Fractal Geometry ↔ Bioelectric (geometry at biological scale)
+  {source:10, target:7},  // Why Conscious ↔ Brain Upload
+  {source:11, target:3},  // Not General Intelligence ↔ Reasoning Theater
+  {source:12, target:10}, // Contemplative AI ↔ Why Conscious
+  {source:13, target:5},  // Everest Geology ↔ Inner Core (deep time, earth structure)
+  {source:14, target:2},  // Google AI Training ↔ AI Consciousness
+  {source:24, target:2},  // Transhumanism as History ↔ AI Consciousness
+  {source:24, target:16}, // Transhumanism as History ↔ Jungian Archetypes (rebirth/myth)
+  {source:16, target:21}, // Jungian Polytopes ↔ Collective Intelligence (distributed pattern)
+  {source:17, target:4},  // Hidden Geometry ↔ Quantum Geometry
+  {source:21, target:4},  // Collective Intelligence ↔ Quantum Geometry (mind as geometry)
+];
+
+// ─── SETUP ────────────────────────────────────────────────────
+const svg = d3.select("#main-svg");
+document.getElementById("entry-count").textContent = `${entries.length} entries · ${Object.keys(CLUSTERS).length} domains`;
+// Header date — updates automatically to today
+(function() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('header-sub').innerHTML = dateStr + ' &nbsp;·&nbsp; living archive';
+})();
+
+// ── Layout helpers ── responsive cluster positions
+function getLayout() {
+  const W = window.innerWidth, H = window.innerHeight;
+  const isSmall = Math.min(W,H) < 680;
+  const isLandscape = W > H;
+
+  let pos;
+  if (!isSmall) {
+    // Desktop / tablet
+    // To add a cluster: add its key here with x/y as fractions of W and H.
+    // x:0.5, y:0.5 is center. x:0.2, y:0.2 is top-left.
+    pos = {
+      ai_tech:    { x:W*0.50, y:H*0.44 },
+      physics:    { x:W*0.20, y:H*0.24 },
+      psyche:     { x:W*0.76, y:H*0.24 },
+      philosophy: { x:W*0.20, y:H*0.68 },
+      history:    { x:W*0.76, y:H*0.70 },
+      myth:       { x:W*0.38, y:H*0.84 },
+      art:        { x:W*0.64, y:H*0.84 },
+      biology:    { x:W*0.50, y:H*0.14 },
+    };
+  } else if (isLandscape) {
+    pos = {
+      ai_tech:    { x:W*0.50, y:H*0.45 },
+      physics:    { x:W*0.14, y:H*0.30 },
+      psyche:     { x:W*0.86, y:H*0.30 },
+      philosophy: { x:W*0.14, y:H*0.70 },
+      history:    { x:W*0.86, y:H*0.70 },
+      myth:       { x:W*0.36, y:H*0.82 },
+      art:        { x:W*0.64, y:H*0.82 },
+      biology:    { x:W*0.50, y:H*0.12 },
+    };
+  } else {
+    pos = {
+      ai_tech:    { x:W*0.50, y:H*0.46 },
+      physics:    { x:W*0.22, y:H*0.27 },
+      psyche:     { x:W*0.78, y:H*0.27 },
+      philosophy: { x:W*0.22, y:H*0.58 },
+      history:    { x:W*0.78, y:H*0.58 },
+      myth:       { x:W*0.33, y:H*0.72 },
+      art:        { x:W*0.67, y:H*0.72 },
+      biology:    { x:W*0.50, y:H*0.14 },
+    };
+  }
+  return { W, H, isSmall, isLandscape, pos };
+}
+
+// Starfield
+const starsLayer = d3.select("#stars-layer");
+const W0 = window.innerWidth, H0 = window.innerHeight;
+for (let i = 0; i < (Math.min(W0,H0)<680 ? 100 : 200); i++) {
+  starsLayer.append("circle").attr("class","star")
+    .attr("cx",Math.random()*W0).attr("cy",Math.random()*H0)
+    .attr("r",Math.random()*1.4+0.2)
+    .style("--dur",(Math.random()*4+2)+"s")
+    .style("--delay",(Math.random()*6)+"s")
+    .style("--max-op",(Math.random()*0.45+0.08).toFixed(2));
+}
+
+let layout = getLayout();
+let clusterPositions = layout.pos;
+let W = layout.W, H = layout.H;
+
+const nodeData = entries.map(e=>({...e,
+  x:clusterPositions[e.cluster].x+(Math.random()-0.5)*100,
+  y:clusterPositions[e.cluster].y+(Math.random()-0.5)*100,
+}));
+const nodeById={};
+nodeData.forEach(n=>{nodeById[n.id]=n;});
+const linkData=links.filter(l=>nodeById[l.source]&&nodeById[l.target])
+  .map(l=>({source:nodeById[l.source],target:nodeById[l.target],id:`${l.source}-${l.target}`}));
+
+const clusterLabelSel = {};
+
+// ── Force simulation ──
+// clusterStr: gravity toward cluster center. Higher = tighter groups.
+//             For small libraries (<30 entries) try 0.45. For large (100+) use 0.24–0.30.
+// chargeStr:  repulsion between nodes. More negative = more spread.
+//             For small libraries try -80. For large use -140 to -180.
+// collideR:   collision radius. Increase if nodes visually overlap.
+// linkDist:   preferred length of connection lines.
+function simForces(l) {
+  const clusterStr  = l.isSmall ? 0.75 : 0.30;
+  const chargeStr   = l.isSmall ? -65  : -160;
+  const collideR    = l.isSmall ? 12   : 22;
+  const linkDist    = l.isSmall ? 40   : 75;
+  return { clusterStr, chargeStr, collideR, linkDist };
+}
+
+const simulation=d3.forceSimulation(nodeData)
+  .force("link",d3.forceLink(linkData).id(d=>d.id).distance(simForces(layout).linkDist).strength(0.08))
+  .force("charge",d3.forceManyBody().strength(simForces(layout).chargeStr))
+  .force("collide",d3.forceCollide(simForces(layout).collideR))
+  .force("cluster_x",d3.forceX(d=>clusterPositions[d.cluster].x).strength(simForces(layout).clusterStr))
+  .force("cluster_y",d3.forceY(d=>clusterPositions[d.cluster].y).strength(simForces(layout).clusterStr))
+  .force("center",d3.forceCenter(layout.W*0.48,layout.H*0.48).strength(0.005));
+
+const linkElements=d3.select("#links-layer").selectAll("line").data(linkData).enter().append("line")
+  .attr("class","link")
+  .attr("stroke",d=>{const sc=CLUSTERS[d.source.cluster].color,tc=CLUSTERS[d.target.cluster].color;return sc===tc?sc:"#c9a84c";});
+
+const nodeGroups=d3.select("#nodes-layer").selectAll(".node-group").data(nodeData).enter().append("g")
+  .attr("class","node-group")
+  .call(d3.drag()
+    .on("start",(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+    .on("drag",(e,d)=>{d.fx=e.x;d.fy=e.y;})
+    .on("end",(e,d)=>{if(!e.active)simulation.alphaTarget(0);d.fx=null;d.fy=null;}));
+
+nodeGroups.filter(d=>d.convergence).append("circle").attr("r",layout.isSmall?10:14).attr("fill","none")
+  .attr("stroke",d=>CLUSTERS[d.cluster].color).attr("stroke-width",0.5).attr("opacity",0.4).attr("filter","url(#glow)");
+nodeGroups.append("circle").attr("class","node-circle")
+  .attr("r",d=>d.convergence?(layout.isSmall?6:9):(layout.isSmall?5:7))
+  .attr("fill",d=>CLUSTERS[d.cluster].color).attr("fill-opacity",d=>d.convergence?0.9:0.62)
+  .attr("stroke",d=>CLUSTERS[d.cluster].color).attr("stroke-width",1).attr("stroke-opacity",0.55);
+nodeGroups.append("text").attr("class","node-label").attr("dy",18).attr("text-anchor","middle").text(d=>d.num);
+
+const MARGIN = layout.isSmall ? 30 : 40;
+const MARGIN_BOTTOM = layout.isSmall ? 120 : 50;
+simulation.on("tick",()=>{
+  nodeData.forEach(d=>{
+    d.x = Math.max(MARGIN, Math.min(W - MARGIN, d.x));
+    d.y = Math.max(MARGIN, Math.min(H - MARGIN_BOTTOM, d.y));
+  });
+  linkElements.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y).attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+  nodeGroups.attr("transform",d=>`translate(${d.x},${d.y})`);
+});
+
+// ─── TOOLTIP ─────────────────────────────────────────────────
+const tooltip=document.getElementById("tooltip");
+nodeGroups
+  .on("mouseover",function(event,d){
+    tooltip.querySelector("#tooltip-num").textContent=`ENTRY ${d.num} · ${d.date}`;
+    tooltip.querySelector("#tooltip-title").textContent=d.title;
+    tooltip.querySelector("#tooltip-thesis").textContent=d.thesis.substring(0,130)+"…";
+    tooltip.classList.add("visible");
+    linkElements.each(function(l){const el=d3.select(this);
+      if(l.source.id===d.id||l.target.id===d.id)el.classed("highlighted",true).classed("dimmed",false);
+      else el.classed("dimmed",true).classed("highlighted",false);});
+  })
+  .on("mousemove",function(event){
+    tooltip.style.left=Math.min(event.clientX+16,W-310)+"px";
+    tooltip.style.top=Math.min(event.clientY-10,H-130)+"px";
+  })
+  .on("mouseleave",function(){tooltip.classList.remove("visible");linkElements.classed("highlighted",false).classed("dimmed",false);});
+
+// ─── DETAIL PANEL ────────────────────────────────────────────
+let activeNode=null;
+nodeGroups.on("click",function(event,d){
+  event.stopPropagation();
+  if(activeNode===d.id){closePanel();return;}
+  activeNode=d.id;nodeGroups.classed("active",nd=>nd.id===d.id);openPanel(d);
+});
+
+function openPanel(d){
+  const cluster=CLUSTERS[d.cluster];
+  document.getElementById("panel-entry-num").textContent=`ENTRY ${d.num} · ${d.date}`;
+  document.getElementById("panel-title").textContent=d.title;
+  document.getElementById("panel-meta").textContent=d.authors;
+  const srcLink=document.getElementById("panel-source-link");
+  if(d.url){srcLink.href=d.url;srcLink.classList.remove("hidden");}
+  else{srcLink.classList.add("hidden");}
+  const badge=document.getElementById("panel-cluster");
+  badge.textContent=cluster.name;badge.style.background=cluster.color+"22";
+  badge.style.color=cluster.color;badge.style.border=`1px solid ${cluster.color}44`;
+  document.getElementById("panel-thesis").textContent=d.thesis;
+  document.getElementById("panel-thesis-label").style.display='block';
+  document.getElementById("panel-connections-label").style.display='block';
+  const connContainer=document.getElementById("panel-connections");connContainer.innerHTML="";
+  const connected=linkData.filter(l=>l.source.id===d.id||l.target.id===d.id).map(l=>l.source.id===d.id?l.target:l.source);
+  if(connected.length===0){
+    connContainer.innerHTML='<div style="color:var(--text-dim);font-size:12px;font-style:italic;">No direct links mapped.</div>';
+  } else {
+    connected.forEach(c=>{const el=document.createElement("div");el.className="conn-item";
+      el.innerHTML=`<span class="conn-num">${c.num}</span><span class="conn-title">${c.title}</span>`;
+      el.onclick=()=>{activeNode=c.id;nodeGroups.classed("active",nd=>nd.id===c.id);openPanel(c);};
+      connContainer.appendChild(el);});
+  }
+  document.getElementById("detail-panel").classList.add("open");
+}
+function closePanel(){
+  activeNode=null;
+  nodeGroups.classed("active",false);
+  document.getElementById("detail-panel").classList.remove("open");
+  document.getElementById("panel-thesis-label").style.display='none';
+  document.getElementById("panel-connections-label").style.display='none';
+  document.getElementById("panel-entry-num").textContent='';
+  document.getElementById("panel-title").textContent='';
+  document.getElementById("panel-meta").textContent='';
+  document.getElementById("panel-thesis").textContent='';
+}
+const panelCloseBtn = document.getElementById("panel-close");
+panelCloseBtn.addEventListener("click", closePanel);
+panelCloseBtn.addEventListener("touchend", e=>{ e.preventDefault(); e.stopPropagation(); closePanel(); });
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
+let pointerMoved = false;
+svg.on("pointerdown", ()=>{ pointerMoved = false; });
+svg.on("pointermove", ()=>{ pointerMoved = true; });
+svg.on("pointerup", function(event){
+  if(!pointerMoved && event.target === this.node ? this.node() : event.target.tagName === 'svg') closePanel();
+});
+svg.on("click", function(event){
+  if(event.target === document.getElementById("main-svg")) closePanel();
+});
+
+// ─── SEARCH ──────────────────────────────────────────────────
+const searchInput=document.getElementById("search-input");
+const searchCountEl=document.getElementById("search-count");
+document.getElementById("search-container").addEventListener("touchstart", e=>e.stopPropagation(), {passive:false});
+document.getElementById("search-container").addEventListener("touchend", e=>e.stopPropagation(), {passive:false});
+searchInput.addEventListener("input",function(){
+  const q=this.value.trim().toLowerCase();
+  if(!q){
+    nodeGroups.style("opacity",1).classed("search-match",false);
+    linkElements.style("opacity",null).classed("search-dim",false);
+    searchCountEl.textContent="";
+    return;
+  }
+  let matchCount=0;
+  const matchIds=new Set();
+  nodeData.forEach(d=>{
+    const hay=(d.title+d.authors+d.thesis+d.cluster+CLUSTERS[d.cluster].name).toLowerCase();
+    if(hay.includes(q)){matchIds.add(d.id);matchCount++;}
+  });
+  nodeGroups.each(function(d){
+    const match=matchIds.has(d.id);
+    d3.select(this).style("opacity",match?1:0.07).classed("search-match",match);
+  });
+  linkElements.each(function(l){
+    const both=matchIds.has(l.source.id)&&matchIds.has(l.target.id);
+    d3.select(this).style("opacity",both?0.55:0.03);
+  });
+  searchCountEl.textContent=matchCount>0?`${matchCount} match${matchCount!==1?"es":""}`:NO_MATCH;
+});
+const NO_MATCH="no matches";
+searchInput.addEventListener("keydown",e=>{if(e.key==="Escape"){searchInput.value="";searchInput.dispatchEvent(new Event("input"));}});
+
+// ─── LEGEND ──────────────────────────────────────────────────
+const legend=document.getElementById("legend");
+Object.entries(CLUSTERS).forEach(([key,cluster])=>{
+  const count=entries.filter(e=>e.cluster===key).length;
+  const item=document.createElement("div");
+  item.className="legend-item" + (count===0?" empty":"");
+  item.innerHTML=`<div class="legend-dot" style="background:${cluster.color};box-shadow:0 0 5px ${cluster.color}88;"></div><div class="legend-label">${cluster.name}</div><div class="legend-count">${count>0?count:"—"}</div>`;
+  item.onclick=()=>{
+    if(count===0)return;
+    searchInput.value="";searchCountEl.textContent="";
+    nodeGroups.each(function(d){d3.select(this).style("opacity",d.cluster===key?1:0.08).classed("search-match",false);});
+    linkElements.each(function(l){d3.select(this).style("opacity",(l.source.cluster===key||l.target.cluster===key)?0.5:0.03);});
+  };
+  legend.appendChild(item);
+});
+
+// ─── CONTROLS ────────────────────────────────────────────────
+let convergenceMode=false;
+document.getElementById("btn-reset").addEventListener("click",()=>{
+  convergenceMode=false;
+  document.getElementById("btn-convergence").classList.remove("active");
+  nodeGroups.style("opacity",1).classed("search-match",false);
+  linkElements.style("opacity",null);
+  searchInput.value="";searchCountEl.textContent="";
+  nodeData.forEach(d=>{
+    d.x = clusterPositions[d.cluster].x + (Math.random()-0.5)*60;
+    d.y = clusterPositions[d.cluster].y + (Math.random()-0.5)*60;
+    d.vx = 0; d.vy = 0;
+  });
+  simulation.alpha(0.6).restart();
+  closePanel();
+});
+
+document.getElementById("btn-convergence").addEventListener("click",function(){
+  convergenceMode=!convergenceMode;
+  this.classList.toggle("active",convergenceMode);
+  if(convergenceMode){
+    const convIds=entries.filter(e=>e.convergence).map(e=>e.id);
+    nodeGroups.each(function(d){d3.select(this).style("opacity",convIds.includes(d.id)?1:0.07);});
+    linkElements.each(function(l){d3.select(this).style("opacity",convIds.includes(l.source.id)&&convIds.includes(l.target.id)?0.7:0.02);});
+    searchCountEl.textContent=`${convIds.length} convergence entries`;
+    nodeData.forEach(d=>{
+      if(convIds.includes(d.id)){
+        d.x = Math.max(MARGIN+20, Math.min(W-MARGIN-20, d.x));
+        d.y = Math.max(MARGIN+20, Math.min(H-MARGIN-20, d.y));
+      }
+    });
+    simulation
+      .force("conv_x", d3.forceX(d=>convIds.includes(d.id)?W*0.48:clusterPositions[d.cluster].x).strength(d=>convIds.includes(d.id)?0.12:0))
+      .force("conv_y", d3.forceY(d=>convIds.includes(d.id)?H*0.48:clusterPositions[d.cluster].y).strength(d=>convIds.includes(d.id)?0.12:0))
+      .alpha(0.3).restart();
+  } else {
+    nodeGroups.style("opacity",1);linkElements.style("opacity",null);searchCountEl.textContent="";
+    simulation.force("conv_x",null).force("conv_y",null).alpha(0.3).restart();
+  }
+});
+
+// ─── CLUSTER HALOS ───────────────────────────────────────────
+// Soft glowing circles behind each cluster — purely decorative.
+// Radius is uniform here since the example library has equal cluster sizes.
+// For unequal libraries, try scaling radius by entry count:
+//   const r = Math.max(70, Math.min(160, 55 + count * 3));
+setTimeout(()=>{
+  const haloLayer=d3.select("#cluster-halos");
+  Object.entries(CLUSTERS).forEach(([key,cluster])=>{
+    const count=entries.filter(e=>e.cluster===key).length;
+    if(count===0)return;
+    const pos=clusterPositions[key];
+    haloLayer.append("circle").attr("cx",pos.x).attr("cy",pos.y)
+      .attr("r",85).attr("fill",cluster.color)
+      .attr("opacity",0.04).attr("filter","url(#cluster-glow)");
+  });
+},100);
+
+// ─── RESIZE ──────────────────────────────────────────────────
+let lastW = window.innerWidth, lastH = window.innerHeight;
+window.addEventListener("resize",()=>{
+  const newW = window.innerWidth, newH = window.innerHeight;
+  if (newW === lastW && newH === lastH) return;
+  const orientationFlipped = (newW > newH) !== (lastW > lastH);
+  lastW = newW; lastH = newH;
+  layout = getLayout();
+  clusterPositions = layout.pos;
+  W = layout.W; H = layout.H;
+  const f = simForces(layout);
+  Object.entries(CLUSTERS).forEach(([key])=>{
+    const pos = clusterPositions[key];
+    if (clusterLabelSel[key]) {
+      clusterLabelSel[key].attr("x",pos.x).attr("y",Math.max(pos.y-82,110));
+    }
+  });
+  simulation
+    .force("cluster_x", d3.forceX(d=>clusterPositions[d.cluster].x).strength(f.clusterStr))
+    .force("cluster_y", d3.forceY(d=>clusterPositions[d.cluster].y).strength(f.clusterStr))
+    .force("charge", d3.forceManyBody().strength(f.chargeStr))
+    .force("collide", d3.forceCollide(f.collideR))
+    .force("center", d3.forceCenter(newW*0.48, newH*0.48).strength(0.005));
+  if (orientationFlipped) {
+    nodeData.forEach(d=>{
+      d.x = clusterPositions[d.cluster].x + (Math.random()-0.5)*80;
+      d.y = clusterPositions[d.cluster].y + (Math.random()-0.5)*80;
+      d.vx = 0; d.vy = 0;
+    });
+  }
+  simulation.alpha(orientationFlipped ? 0.8 : 0.3).restart();
+});
+</script>
+</body>
+</html>
