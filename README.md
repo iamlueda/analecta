@@ -114,4 +114,4 @@ The file is self-contained — one HTML file with no external assets other than 
 
 ---
 
-Built by [Lueda Alia](https://psychoid.fm). The live instance lives at [psychoid.fm/analecta](https://psychoid.fm/analecta).
+Built by [Lueda Alia](https://iamlueda.com). The live instance lives at [psychoid.fm/analecta](https://psychoid.fm/analecta).
